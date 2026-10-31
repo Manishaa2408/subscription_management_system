@@ -2,39 +2,43 @@ import React, { useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
 export const ConfirmModal = ({
-  isOpen,
+  isOpen = true,
   title,
   message,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   confirmVariant = 'primary',
+  variant,
   requiresInput = false,
   inputLabel = '',
   inputPlaceholder = '',
   onConfirm,
-  onClose
+  onClose,
+  onCancel
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
 
-  if (!isOpen) return null;
+  if (isOpen === false) return null;
+
+  const handleClose = () => {
+    setInputValue('');
+    setError('');
+    if (onCancel) onCancel();
+    if (onClose) onClose();
+  };
 
   const handleConfirm = () => {
     if (requiresInput && !inputValue.trim()) {
       setError('This field is required');
       return;
     }
-    onConfirm(requiresInput ? inputValue.trim() : null);
+    if (onConfirm) onConfirm(requiresInput ? inputValue.trim() : null);
     setInputValue('');
     setError('');
   };
 
-  const handleClose = () => {
-    setInputValue('');
-    setError('');
-    onClose();
-  };
-
+  const actualVariant = variant || confirmVariant;
   const buttonColors = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white',
     danger: 'bg-rose-600 hover:bg-rose-700 text-white',
@@ -48,7 +52,7 @@ export const ConfirmModal = ({
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className={`p-2.5 rounded-xl ${
-                confirmVariant === 'danger' ? 'bg-rose-100 text-rose-600' : 'bg-blue-100 text-blue-600'
+                actualVariant === 'danger' ? 'bg-rose-100 text-rose-600' : 'bg-blue-100 text-blue-600'
               }`}>
                 <AlertTriangle className="w-5 h-5" />
               </div>
@@ -98,7 +102,7 @@ export const ConfirmModal = ({
             type="button"
             onClick={handleConfirm}
             className={`px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition ${
-              buttonColors[confirmVariant] || buttonColors.primary
+              buttonColors[actualVariant] || buttonColors.primary
             }`}
           >
             {confirmText}
@@ -108,3 +112,5 @@ export const ConfirmModal = ({
     </div>
   );
 };
+
+export default ConfirmModal;

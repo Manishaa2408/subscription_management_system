@@ -33,7 +33,7 @@ describe('M10 - Invoice & Tax Management REST APIs', () => {
       const res = await request(app).get('/api/health');
       expect(res.statusCode).toBe(200);
       expect(res.body.status).toBe('ok');
-      expect(res.body.module).toContain('M10');
+      expect(res.body.modules).toEqual(expect.arrayContaining([expect.stringContaining('M10')]));
     });
   });
 

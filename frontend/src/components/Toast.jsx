@@ -1,10 +1,14 @@
 import React from 'react';
 import { CheckCircle2, AlertCircle, X } from 'lucide-react';
 
-export const Toast = ({ toast, onClose }) => {
-  if (!toast) return null;
+export const Toast = ({ toast, message, type, onClose }) => {
+  const actualMessage = toast?.message || message;
+  const actualType = toast?.type || type;
+  const actualErrors = toast?.errors || [];
 
-  const isError = toast.type === 'error';
+  if (!actualMessage) return null;
+
+  const isError = actualType === 'error';
 
   return (
     <div className="fixed bottom-5 right-5 z-50 max-w-md animate-fade-in no-print">
@@ -19,10 +23,10 @@ export const Toast = ({ toast, onClose }) => {
           <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
         )}
         <div className="flex-1">
-          <p className="text-sm font-semibold">{toast.message}</p>
-          {toast.errors && toast.errors.length > 0 && (
+          <p className="text-sm font-semibold">{actualMessage}</p>
+          {actualErrors.length > 0 && (
             <ul className="mt-1 text-xs space-y-0.5 text-rose-700 list-disc list-inside">
-              {toast.errors.map((e, idx) => (
+              {actualErrors.map((e, idx) => (
                 <li key={idx}>{e}</li>
               ))}
             </ul>
@@ -38,3 +42,5 @@ export const Toast = ({ toast, onClose }) => {
     </div>
   );
 };
+
+export default Toast;

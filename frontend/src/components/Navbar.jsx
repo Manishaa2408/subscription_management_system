@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FileText, PlusCircle, Percent, UserCheck, Shield, Users, ExternalLink } from 'lucide-react';
+import { FileText, PlusCircle, Percent, UserCheck, Shield, Users, CreditCard, RefreshCw, RotateCcw } from 'lucide-react';
 
 export const Navbar = () => {
   const { currentUser, switchUser, PRESET_USERS } = useAuth();
@@ -21,7 +21,7 @@ export const Navbar = () => {
       <div className="bg-slate-900 text-white text-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800">
         <div className="flex items-center gap-2">
           <span className="bg-blue-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">
-            M10 Module
+            M10 + M11
           </span>
           <span className="text-slate-300">
             Invoice & Tax Management | Odoo x Make-A-Ton Hackathon 2026
@@ -112,10 +112,47 @@ export const Navbar = () => {
                     <Percent className="w-4 h-4" />
                     Tax Configurations
                   </Link>
+
+                  {/* M11 – Payments */}
+                  <Link
+                    to="/admin/payments"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/payments')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Payments
+                  </Link>
+
+                  <Link
+                    to="/admin/reconciliation"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/reconciliation')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Reconciliation
+                  </Link>
+
+                  <Link
+                    to="/admin/refunds"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/refunds')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Refunds
+                  </Link>
                 </>
               )}
 
-              {/* Customer Portal Link */}
+              {/* Customer Portal Links */}
               <Link
                 to="/customer/invoices"
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
@@ -125,9 +162,22 @@ export const Navbar = () => {
                 }`}
               >
                 <Users className="w-4 h-4" />
-                Customer Portal
+                My Invoices
+              </Link>
+
+              <Link
+                to="/customer/payments"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  isActive('/customer/payments')
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <CreditCard className="w-4 h-4" />
+                My Payments
               </Link>
             </nav>
+
           </div>
 
           {/* User Badge Profile */}

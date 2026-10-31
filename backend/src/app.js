@@ -5,6 +5,10 @@ require('dotenv').config();
 
 const invoiceRoutes = require('./modules/invoices/routes/invoiceRoutes');
 const taxRoutes = require('./modules/invoices/routes/taxRoutes');
+const paymentRoutes = require('./modules/payments/routes/paymentRoutes');
+const reconciliationRoutes = require('./modules/payments/routes/reconciliationRoutes');
+const receiptRoutes = require('./modules/payments/routes/receiptRoutes');
+const refundRoutes = require('./modules/payments/routes/refundRoutes');
 
 const app = express();
 
@@ -25,7 +29,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    module: 'M10 - Invoice & Tax Management',
+    modules: ['M10 - Invoice & Tax Management', 'M11 - Payment & Reconciliation Management'],
     system: 'Brightloop Subscription Management System',
     timestamp: new Date().toISOString()
   });
@@ -34,6 +38,10 @@ app.get('/api/health', (req, res) => {
 // Mount module routes
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/tax-configurations', taxRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/reconciliation', reconciliationRoutes);
+app.use('/api/receipts', receiptRoutes);
+app.use('/api/refunds', refundRoutes);
 
 // 404 Handler
 app.use('*', (req, res) => {
