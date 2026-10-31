@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, User as UserIcon, Shield, Layers, Users } from 'lucide-react';
+import { LogOut, User as UserIcon, Shield, Layers, Users, UserCheck } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -53,6 +53,21 @@ const Navbar = () => {
               >
                 <Users size={16} />
                 <span>User Management</span>
+              </Link>
+            )}
+            {(user.role === 'admin' || user.role === 'staff') && (
+              <Link
+                to="/admin/customers"
+                style={{
+                  color: 'var(--slate-700)',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                }}
+              >
+                <UserCheck size={16} />
+                <span>Customers</span>
               </Link>
             )}
           </div>

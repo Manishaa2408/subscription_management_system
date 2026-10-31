@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const customerRoutes = require('./modules/customers/routes/customerRoutes');
+const customerPortalRoutes = require('./modules/customers/routes/customerPortalRoutes');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -40,6 +42,8 @@ app.get('/api/health', (req, res) => {
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/customer-portal', customerPortalRoutes);
 
 // 404 Route Handler
 app.use(notFound);

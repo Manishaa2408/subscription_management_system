@@ -7,7 +7,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed:admin": "node scripts/seedAdmin.js",
-    "test:m1": "node tests/m1_test.js"
+    "seed:m2": "node src/modules/customers/seeds/customerSeed.js",
+    "test:m1": "node tests/m1_test.js",
+    "test:m2": "node tests/m2_test.js"
   },
   "keywords": [
     "mern",
