@@ -15,6 +15,12 @@ import EditQuotation from "./pages/quotations/EditQuotation";
 import QuotationDetails from "./pages/quotations/QuotationDetails";
 import CustomerPortal from "./pages/quotations/CustomerPortal";
 
+// M7 - Subscription Lifecycle Management
+import SubscriptionDashboard from "./pages/subscriptions/SubscriptionDashboard";
+import CreateSubscription from "./pages/subscriptions/CreateSubscription";
+import SubscriptionDetails from "./pages/subscriptions/SubscriptionDetails";
+import CustomerSubscriptions from "./pages/subscriptions/CustomerSubscriptions";
+
 export const App = () => {
   return (
     <div className="app-container">
@@ -22,7 +28,14 @@ export const App = () => {
       <main className="main-content">
         <Routes>
           {/* Default Route */}
-          <Route path="/" element={<Navigate to="/quotations" replace />} />
+          <Route path="/" element={<Navigate to="/subscriptions" replace />} />
+
+          {/* M7 Subscription Lifecycle Routes */}
+          <Route path="/subscriptions" element={<SubscriptionDashboard />} />
+          <Route path="/subscriptions/create" element={<CreateSubscription />} />
+          <Route path="/subscriptions/:id" element={<SubscriptionDetails />} />
+          <Route path="/portal/subscriptions" element={<CustomerSubscriptions />} />
+          <Route path="/admin/subscriptions" element={<SubscriptionDashboard />} />
 
           {/* M6 Quotation Management Routes */}
           <Route path="/quotations" element={<QuotationDashboard />} />
@@ -42,7 +55,7 @@ export const App = () => {
           <Route path="/admin/quotations" element={<QuotationDashboard />} />
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/quotations" replace />} />
+          <Route path="*" element={<Navigate to="/subscriptions" replace />} />
         </Routes>
       </main>
     </div>

@@ -48,28 +48,57 @@ export const Navbar = () => {
             <Layers size={24} color="#1e40af" />
             <span>Brightloop Software</span>
           </Link>
-          <span className="brand-badge">M5 + M6</span>
+          <span className="brand-badge">M5 + M6 + M7</span>
         </div>
 
         <div className="nav-links">
-          {/* Quotations (M6) */}
-          <Link
-            to="/quotations"
-            className={`btn ${location.pathname.startsWith("/quotations") ? "btn-primary" : "btn-outline"}`}
-          >
-            <FileText size={16} /> Quotations
-          </Link>
+          {/* Subscriptions (M7) */}
+          {role !== "customer" && (
+            <Link
+              to="/subscriptions"
+              className={`btn ${location.pathname.startsWith("/subscriptions") ? "btn-primary" : "btn-outline"}`}
+            >
+              <Layers size={16} /> Subscriptions
+            </Link>
+          )}
 
-          {/* Customer Portal */}
-          <Link
-            to="/portal/quotations"
-            className={`btn ${location.pathname.startsWith("/portal") ? "btn-primary" : "btn-outline"}`}
-          >
-            Customer Portal
-          </Link>
+          {/* Quotations (M6) */}
+          {role !== "customer" && (
+            <Link
+              to="/quotations"
+              className={`btn ${location.pathname.startsWith("/quotations") ? "btn-primary" : "btn-outline"}`}
+            >
+              <FileText size={16} /> Quotations
+            </Link>
+          )}
+
+          {/* Customer Portal Links */}
+          {role === "customer" ? (
+            <>
+              <Link
+                to="/portal/subscriptions"
+                className={`btn ${location.pathname === "/portal/subscriptions" ? "btn-primary" : "btn-outline"}`}
+              >
+                My Subscriptions
+              </Link>
+              <Link
+                to="/portal/quotations"
+                className={`btn ${location.pathname === "/portal/quotations" ? "btn-primary" : "btn-outline"}`}
+              >
+                My Proposals
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/portal/subscriptions"
+              className={`btn ${location.pathname.startsWith("/portal") ? "btn-primary" : "btn-outline"}`}
+            >
+              Customer Portal
+            </Link>
+          )}
 
           {/* Quotation Templates (M5) */}
-          {!isAdmin && role === "customer" ? null : (
+          {role !== "customer" && (
             <Link
               to="/templates"
               className={`btn ${location.pathname.startsWith("/templates") ? "btn-primary" : "btn-outline"}`}
@@ -78,13 +107,13 @@ export const Navbar = () => {
             </Link>
           )}
 
-          {/* Create Button */}
+          {/* Quick Create Button */}
           {role !== "customer" && (
             <Link
-              to="/quotations/create"
+              to="/subscriptions/create"
               className="btn btn-primary"
             >
-              <PlusCircle size={16} /> New Quotation
+              <PlusCircle size={16} /> New Subscription
             </Link>
           )}
         </div>
