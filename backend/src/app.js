@@ -7,6 +7,9 @@ const userRoutes = require('./routes/userRoutes');
 const customerRoutes = require('./modules/customers/routes/customerRoutes');
 const customerPortalRoutes = require('./modules/customers/routes/customerPortalRoutes');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
+const productRoutes = require('./modules/products/routes/productRoutes');
+const productCategoryRoutes = require('./modules/products/routes/productCategoryRoutes');
+const productVariantRoutes = require('./modules/products/routes/productVariantRoutes');
 
 const app = express();
 
@@ -44,7 +47,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/customer-portal', customerPortalRoutes);
-
+app.use('/api/products', productRoutes);
+app.use('/api/product-categories', productCategoryRoutes);
+app.use('/api/products/:productId/variants', productVariantRoutes);
 // 404 Route Handler
 app.use(notFound);
 
