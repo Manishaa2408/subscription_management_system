@@ -1,135 +1,218 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { Layers, FileText, PlusCircle, ShieldAlert, Tag } from "lucide-react";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { FileText, PlusCircle, Percent, UserCheck, Shield, Users, CreditCard, RefreshCw, RotateCcw, Zap, Calendar } from 'lucide-react';
 
 export const Navbar = () => {
-  const { role, changeRole, isAdmin } = useAuth();
+  const { currentUser, switchUser, PRESET_USERS } = useAuth();
   const location = useLocation();
 
+  const isAdmin = currentUser.role === 'admin';
+  const isStaff = currentUser.role === 'staff';
+  const isCustomer = currentUser.role === 'customer';
+
+  const isActive = (path) => {
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
   return (
-    <header>
-      {/* Development RBAC Simulator Banner */}
-      <div className="dev-banner">
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <ShieldAlert size={15} color="#38bdf8" />
-          <span><strong>Dev RBAC Switcher:</strong> Active Role is <code>{role.toUpperCase()}</code></span>
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+      {/* Top Demo Bar for Hackathon Evaluation */}
+      <div className="bg-slate-900 text-white text-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800">
+        <div className="flex items-center gap-2">
+          <span className="bg-blue-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">
+            M9 + M10 + M11
+          </span>
+          <span className="text-slate-300">
+            Recurring Billing, Invoicing &amp; Payment Engine | Developer 3
+          </span>
         </div>
-        <div className="dev-role-selector">
-          <span>Switch Test Role:</span>
-          <button
-            type="button"
-            className={`role-btn ${role === "admin" ? "active" : ""}`}
-            onClick={() => changeRole("admin")}
-          >
-            Admin (Full Access)
-          </button>
-          <button
-            type="button"
-            className={`role-btn ${role === "staff" ? "active" : ""}`}
-            onClick={() => changeRole("staff")}
-          >
-            Staff
-          </button>
-          <button
-            type="button"
-            className={`role-btn ${role === "customer" ? "active" : ""}`}
-            onClick={() => changeRole("customer")}
-          >
-            Customer (Portal Access)
-          </button>
+
+        {/* Interactive Persona / Role Switcher */}
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400 font-medium">Switch Active Role:</span>
+          <div className="inline-flex rounded-md shadow-xs bg-slate-800 p-0.5 border border-slate-700">
+            {PRESET_USERS.map((user) => {
+              const active = currentUser.key === user.key;
+              return (
+                <button
+                  key={user.key}
+                  type="button"
+                  onClick={() => switchUser(user.key)}
+                  title={user.description}
+                  className={`px-2.5 py-1 text-xs rounded transition-all font-medium ${
+                    active
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                  }`}
+                >
+                  {user.key === 'admin' && 'Admin'}
+                  {user.key === 'staff' && 'Staff'}
+                  {user.key === 'customer1' && 'Customer 1 (KL)'}
+                  {user.key === 'customer2' && 'Customer 2 (KA)'}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Main SaaS Navbar */}
-      <nav className="navbar">
-        <div className="brand">
-          <Link to="/" style={{ display: "flex", alignItems: "center", gap: "10px", color: "inherit", textDecoration: "none" }}>
-            <Layers size={24} color="#1e40af" />
-            <span>Brightloop Software</span>
-          </Link>
-          <span className="brand-badge">M5 + M6 + M7 + M8</span>
-        </div>
-
-        <div className="nav-links">
-          {/* Subscriptions (M7) */}
-          {role !== "customer" && (
-            <Link
-              to="/subscriptions"
-              className={`btn ${location.pathname.startsWith("/subscriptions") ? "btn-primary" : "btn-outline"}`}
-            >
-              <Layers size={16} /> Subscriptions
+      {/* Main Navigation Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-8">
+            <Link to="/admin/billing" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20 group-hover:bg-blue-700 transition">
+                BL
+              </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900 tracking-tight">Brightloop</span>
+                <span className="text-xs block text-slate-500 font-medium -mt-1">Billing &amp; Revenue Engine</span>
+              </div>
             </Link>
-          )}
 
-          {/* Quotations (M6) */}
-          {role !== "customer" && (
-            <Link
-              to="/quotations"
-              className={`btn ${location.pathname.startsWith("/quotations") ? "btn-primary" : "btn-outline"}`}
-            >
-              <FileText size={16} /> Quotations
-            </Link>
-          )}
+            <nav className="hidden md:flex items-center gap-1">
+              {/* Admin/Staff Navigation */}
+              {(isAdmin || isStaff) && (
+                <>
+                  {/* M9 – Recurring Billing Engine */}
+                  <Link
+                    to="/admin/billing"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/billing')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Zap className="w-4 h-4 text-amber-500" />
+                    Billing Engine
+                  </Link>
 
-          {/* Discounts (M8) */}
-          {role !== "customer" && (
-            <Link
-              to="/discounts"
-              className={`btn ${location.pathname.startsWith("/discounts") ? "btn-primary" : "btn-outline"}`}
-            >
-              <Tag size={16} /> Discounts
-            </Link>
-          )}
+                  <Link
+                    to="/admin/invoices"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/invoices') && !isActive('/admin/invoices/create')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4" />
+                    Invoices
+                  </Link>
 
-          {/* Customer Portal Links */}
-          {role === "customer" ? (
-            <>
+                  {isAdmin && (
+                    <Link
+                      to="/admin/invoices/create"
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                        isActive('/admin/invoices/create')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Create Invoice
+                    </Link>
+                  )}
+
+                  <Link
+                    to="/admin/tax-configurations"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/tax-configurations')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Percent className="w-4 h-4" />
+                    Tax Configurations
+                  </Link>
+
+                  {/* M11 – Payments */}
+                  <Link
+                    to="/admin/payments"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/payments')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Payments
+                  </Link>
+
+                  <Link
+                    to="/admin/reconciliation"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/reconciliation')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Reconciliation
+                  </Link>
+
+                  <Link
+                    to="/admin/refunds"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/refunds')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Refunds
+                  </Link>
+                </>
+              )}
+
+              {/* Customer Portal Links */}
               <Link
-                to="/portal/subscriptions"
-                className={`btn ${location.pathname === "/portal/subscriptions" ? "btn-primary" : "btn-outline"}`}
+                to="/customer/invoices"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  isActive('/customer/invoices')
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
               >
-                My Subscriptions
+                <Users className="w-4 h-4" />
+                My Invoices
               </Link>
+
               <Link
-                to="/portal/quotations"
-                className={`btn ${location.pathname === "/portal/quotations" ? "btn-primary" : "btn-outline"}`}
+                to="/customer/payments"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  isActive('/customer/payments')
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
               >
-                My Proposals
+                <CreditCard className="w-4 h-4" />
+                My Payments
               </Link>
-            </>
-          ) : (
-            <Link
-              to="/portal/subscriptions"
-              className={`btn ${location.pathname.startsWith("/portal") ? "btn-primary" : "btn-outline"}`}
-            >
-              Customer Portal
-            </Link>
-          )}
+            </nav>
 
-          {/* Quotation Templates (M5) */}
-          {role !== "customer" && (
-            <Link
-              to="/templates"
-              className={`btn ${location.pathname.startsWith("/templates") ? "btn-primary" : "btn-outline"}`}
-            >
-              Templates
-            </Link>
-          )}
+          </div>
 
-          {/* Quick Create Button */}
-          {role !== "customer" && (
-            <Link
-              to="/discounts/create"
-              className="btn btn-primary"
-            >
-              <PlusCircle size={16} /> New Discount
-            </Link>
-          )}
+          {/* User Badge Profile */}
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <div className="text-sm font-semibold text-slate-800">{currentUser.name}</div>
+              <div className="text-xs text-slate-500 flex items-center justify-end gap-1">
+                {currentUser.role === 'admin' && <Shield className="w-3 h-3 text-blue-600" />}
+                {currentUser.role === 'staff' && <UserCheck className="w-3 h-3 text-amber-600" />}
+                {currentUser.role === 'customer' && <Users className="w-3 h-3 text-emerald-600" />}
+                <span className="capitalize font-medium">{currentUser.role}</span> &bull; {currentUser.email}
+              </div>
+            </div>
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shadow-xs ${
+              currentUser.role === 'admin' ? 'bg-blue-600' :
+              currentUser.role === 'staff' ? 'bg-amber-600' : 'bg-emerald-600'
+            }`}>
+              {currentUser.role[0].toUpperCase()}
+            </div>
+          </div>
         </div>
-      </nav>
+      </div>
     </header>
   );
 };
-
-export default Navbar;

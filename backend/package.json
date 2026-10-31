@@ -10,12 +10,16 @@
     "seed:m2": "node src/modules/customers/seeds/customerSeed.js",
     "seed:m5": "node scripts/seedDevelopmentCatalog.js",
     "seed:m8": "node scripts/seedDiscounts.js",
+    "seed:m9": "node src/modules/billing/seeds/billingSeed.js",
+    "seed:m10": "node src/modules/invoices/seeds/seed.js",
+    "seed:m11": "node src/modules/payments/seeds/paymentSeed.js",
     "test:m1": "node tests/m1_test.js",
     "test:m2": "node tests/m2_test.js",
     "test:m5": "node scripts/runM5Tests.js",
     "test:m6": "node scripts/runM6Tests.js",
     "test:m7": "node scripts/runM7Tests.js",
-    "test:m8": "node scripts/runM8Tests.js"
+    "test:m8": "node scripts/runM8Tests.js",
+    "test": "jest --detectOpenHandles --forceExit"
   },
   "keywords": ["mern", "subscription-management", "odoo-hackathon", "brightloop"],
   "author": "Brightloop Team – Odoo Make-A-Ton 9.0 Hackathon 2026",
@@ -29,10 +33,17 @@
     "express-validator": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.0",
+    "morgan": "^1.10.0",
     "node-cron": "^3.0.0"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "mongodb-memory-server": "^9.2.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000
   }
 }

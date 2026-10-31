@@ -32,38 +32,30 @@ const discountCampaignRoutes = require('./modules/discounts/routes/discountCampa
 const discountRoutes = require('./modules/discounts/routes/discountRoutes');
 
 // ── M9: Recurring Billing Engine ────────────────────────────────────────────
-let billingEngineRoutes;
+let billingRoutes, billingRunRoutes;
 try {
-  billingEngineRoutes = require('./modules/billing/routes/billingRoutes');
-} catch (e) {
-  billingEngineRoutes = null;
-}
+  billingRoutes = require('./modules/billing/routes/billingRoutes');
+  billingRunRoutes = require('./modules/billing/routes/billingRunRoutes');
+} catch (e) { billingRoutes = null; billingRunRoutes = null; }
 
-// ── M10: Invoice & Tax Management ───────────────────────────────────────────
-let invoiceRoutes, taxRoutes;
+// ── M10 & M11: Invoices, Taxes, Payments & Reconciliation ───────────────────
+let invoiceRoutes, taxRoutes, paymentRoutes, reconciliationRoutes, receiptRoutes, refundRoutes;
 try {
   invoiceRoutes = require('./modules/invoices/routes/invoiceRoutes');
   taxRoutes = require('./modules/invoices/routes/taxRoutes');
-} catch (e) {
-  invoiceRoutes = null;
-  taxRoutes = null;
-}
-
-// ── M11: Payment & Reconciliation ───────────────────────────────────────────
-let paymentRoutes;
+} catch (e) { invoiceRoutes = null; taxRoutes = null; }
 try {
   paymentRoutes = require('./modules/payments/routes/paymentRoutes');
-} catch (e) {
-  paymentRoutes = null;
-}
+  reconciliationRoutes = require('./modules/payments/routes/reconciliationRoutes');
+  receiptRoutes = require('./modules/payments/routes/receiptRoutes');
+  refundRoutes = require('./modules/payments/routes/refundRoutes');
+} catch (e) { paymentRoutes = null; reconciliationRoutes = null; receiptRoutes = null; refundRoutes = null; }
 
 // ── M12: Dashboard & Analytics ──────────────────────────────────────────────
 let analyticsRoutes;
 try {
   analyticsRoutes = require('./modules/analytics/routes/analyticsRoutes');
-} catch (e) {
-  analyticsRoutes = null;
-}
+} catch (e) { analyticsRoutes = null; }
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -76,11 +68,10 @@ app.use(
     origin: [clientUrl, 'http://127.0.0.1:5173', 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-dev-role']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-dev-role', 'x-mock-role', 'x-mock-user-id', 'x-mock-user-email']
   })
 );
 
-// ── Body Parsers ─────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -127,17 +118,21 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/discount-campaigns', discountCampaignRoutes);
 app.use('/api/discounts', discountRoutes);
 
-// M9 (optional – mounted if module exists)
-if (billingEngineRoutes) app.use('/api/billing', billingEngineRoutes);
+// M9
+if (billingRunRoutes) app.use('/api/billing/runs', billingRunRoutes);
+if (billingRoutes) app.use('/api/billing', billingRoutes);
 
-// M10 (optional)
+// M10
 if (invoiceRoutes) app.use('/api/invoices', invoiceRoutes);
-if (taxRoutes) app.use('/api/taxes', taxRoutes);
+if (taxRoutes) app.use('/api/tax-configurations', taxRoutes);
 
-// M11 (optional)
+// M11
 if (paymentRoutes) app.use('/api/payments', paymentRoutes);
+if (reconciliationRoutes) app.use('/api/reconciliation', reconciliationRoutes);
+if (receiptRoutes) app.use('/api/receipts', receiptRoutes);
+if (refundRoutes) app.use('/api/refunds', refundRoutes);
 
-// M12 (optional)
+// M12
 if (analyticsRoutes) app.use('/api/analytics', analyticsRoutes);
 
 // ── 404 & Error Handler ───────────────────────────────────────────────────────

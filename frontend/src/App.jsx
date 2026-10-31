@@ -63,6 +63,35 @@ import EditDiscount from './pages/discounts/EditDiscount';
 import DiscountDetails from './pages/discounts/DiscountDetails';
 import DiscountTester from './pages/discounts/DiscountTester';
 
+// ── M9: Recurring Billing Engine ─────────────────────────────────────────────
+import BillingDashboard from './modules/billing/pages/BillingDashboard';
+import BillingScheduleList from './modules/billing/pages/BillingScheduleList';
+import BillingScheduleDetails from './modules/billing/pages/BillingScheduleDetails';
+import BillingRuns from './modules/billing/pages/BillingRuns';
+import BillingRunDetails from './modules/billing/pages/BillingRunDetails';
+import FailedBillings from './modules/billing/pages/FailedBillings';
+import BillingHistory from './modules/billing/pages/BillingHistory';
+
+// ── M10: Invoice & Tax Management ────────────────────────────────────────────
+import { InvoiceList } from './modules/invoices/pages/InvoiceList';
+import { InvoiceDetails } from './modules/invoices/pages/InvoiceDetails';
+import { CreateInvoice } from './modules/invoices/pages/CreateInvoice';
+import { EditInvoice } from './modules/invoices/pages/EditInvoice';
+import { InvoicePrintView } from './modules/invoices/pages/InvoicePrintView';
+
+// ── M11: Payment & Reconciliation ────────────────────────────────────────────
+import PaymentList from './modules/payments/pages/PaymentList';
+import RecordPayment from './modules/payments/pages/RecordPayment';
+import PaymentDetails from './modules/payments/pages/PaymentDetails';
+import PaymentReceipt from './modules/payments/pages/PaymentReceipt';
+import CustomerPaymentHistory from './modules/payments/pages/CustomerPaymentHistory';
+
+// ── M12: Dashboard & Analytics ───────────────────────────────────────────────
+let AnalyticsDashboard = null;
+try {
+  AnalyticsDashboard = require('./modules/analytics/pages/AnalyticsDashboard').default;
+} catch (e) { /* optional */ }
+
 // ── Smart Root Redirect ──────────────────────────────────────────────────────
 const RootRedirect = () => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -97,332 +126,90 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-
-          {/* Root Redirect */}
           <Route path="/" element={<RootRedirect />} />
 
           {/* ── M1: Admin Core ──────────────────────────────────────── */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <UserManagement />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
 
           {/* ── M2: Customer Management ─────────────────────────────── */}
-          <Route
-            path="/admin/customers"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <CustomerList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/customers/create"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <CreateCustomer />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/customers/:id"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <CustomerDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/customers/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <EditCustomer />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/customers" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CustomerList /></ProtectedRoute>} />
+          <Route path="/admin/customers/create" element={<ProtectedRoute allowedRoles={['admin']}><CreateCustomer /></ProtectedRoute>} />
+          <Route path="/admin/customers/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CustomerDetails /></ProtectedRoute>} />
+          <Route path="/admin/customers/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><EditCustomer /></ProtectedRoute>} />
 
-          {/* ── M4: Subscription Plan Management ────────────────────── */}
-          <Route
-            path="/admin/plans"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <PlanDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/plans/create"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <PlanCreate />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/plans/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <PlanEdit />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/plans/:id"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <PlanDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/plans"
-            element={
-              <ProtectedRoute allowedRoles={['customer', 'admin']}>
-                <PlanCatalog />
-              </ProtectedRoute>
-            }
-          />
+          {/* ── M4: Subscription Plans ──────────────────────────────── */}
+          <Route path="/admin/plans" element={<ProtectedRoute allowedRoles={['admin']}><PlanDashboard /></ProtectedRoute>} />
+          <Route path="/admin/plans/create" element={<ProtectedRoute allowedRoles={['admin']}><PlanCreate /></ProtectedRoute>} />
+          <Route path="/admin/plans/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><PlanEdit /></ProtectedRoute>} />
+          <Route path="/admin/plans/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PlanDetails /></ProtectedRoute>} />
+          <Route path="/customer/plans" element={<ProtectedRoute allowedRoles={['customer', 'admin']}><PlanCatalog /></ProtectedRoute>} />
 
-          {/* ── M5: Quotation Template Management ───────────────────── */}
-          <Route
-            path="/admin/quotation-templates"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <TemplateList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/quotation-templates/create"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <CreateTemplate />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/quotation-templates/:id"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <TemplateDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/quotation-templates/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <EditTemplate />
-              </ProtectedRoute>
-            }
-          />
-          {/* Staff aliases */}
-          <Route
-            path="/staff/quotation-templates"
-            element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                <TemplateList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/staff/quotation-templates/:id"
-            element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                <TemplateDetails />
-              </ProtectedRoute>
-            }
-          />
+          {/* ── M5: Quotation Templates ─────────────────────────────── */}
+          <Route path="/admin/quotation-templates" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><TemplateList /></ProtectedRoute>} />
+          <Route path="/admin/quotation-templates/create" element={<ProtectedRoute allowedRoles={['admin']}><CreateTemplate /></ProtectedRoute>} />
+          <Route path="/admin/quotation-templates/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><TemplateDetails /></ProtectedRoute>} />
+          <Route path="/admin/quotation-templates/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><EditTemplate /></ProtectedRoute>} />
+          <Route path="/staff/quotation-templates" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><TemplateList /></ProtectedRoute>} />
+          <Route path="/staff/quotation-templates/:id" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><TemplateDetails /></ProtectedRoute>} />
 
           {/* ── M6: Quotation Management ────────────────────────────── */}
-          <Route
-            path="/admin/quotations"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <QuotationDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/quotations/create"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <CreateQuotation />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/quotations/:id"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <QuotationDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/quotations/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <EditQuotation />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/quotations" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><QuotationDashboard /></ProtectedRoute>} />
+          <Route path="/admin/quotations/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateQuotation /></ProtectedRoute>} />
+          <Route path="/admin/quotations/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><QuotationDetails /></ProtectedRoute>} />
+          <Route path="/admin/quotations/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><EditQuotation /></ProtectedRoute>} />
 
-          {/* ── M7: Subscription Lifecycle Management ───────────────── */}
-          <Route
-            path="/admin/subscriptions"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <SubscriptionDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/subscriptions/create"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <CreateSubscription />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/subscriptions/:id"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <SubscriptionDetails />
-              </ProtectedRoute>
-            }
-          />
+          {/* ── M7: Subscription Lifecycle ──────────────────────────── */}
+          <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><SubscriptionDashboard /></ProtectedRoute>} />
+          <Route path="/admin/subscriptions/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateSubscription /></ProtectedRoute>} />
+          <Route path="/admin/subscriptions/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><SubscriptionDetails /></ProtectedRoute>} />
 
           {/* ── M8: Discount Management ─────────────────────────────── */}
-          <Route
-            path="/admin/discounts"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <DiscountDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/discounts/create"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <CreateDiscount />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/discounts/:id"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <DiscountDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/discounts/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <EditDiscount />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/discounts/tester"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff']}>
-                <DiscountTester />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/discounts" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><DiscountDashboard /></ProtectedRoute>} />
+          <Route path="/admin/discounts/create" element={<ProtectedRoute allowedRoles={['admin']}><CreateDiscount /></ProtectedRoute>} />
+          <Route path="/admin/discounts/tester" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><DiscountTester /></ProtectedRoute>} />
+          <Route path="/admin/discounts/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><DiscountDetails /></ProtectedRoute>} />
+          <Route path="/admin/discounts/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><EditDiscount /></ProtectedRoute>} />
 
-          {/* ── M1: Staff Dashboard ─────────────────────────────────── */}
-          <Route
-            path="/staff/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
-                <StaffDashboard />
-              </ProtectedRoute>
-            }
-          />
+          {/* ── M9: Recurring Billing Engine ────────────────────────── */}
+          <Route path="/admin/billing" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingDashboard /></ProtectedRoute>} />
+          <Route path="/admin/billing/schedules" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingScheduleList /></ProtectedRoute>} />
+          <Route path="/admin/billing/schedules/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingScheduleDetails /></ProtectedRoute>} />
+          <Route path="/admin/billing/runs" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingRuns /></ProtectedRoute>} />
+          <Route path="/admin/billing/runs/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingRunDetails /></ProtectedRoute>} />
+          <Route path="/admin/billing/failed" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><FailedBillings /></ProtectedRoute>} />
+          <Route path="/admin/billing/history" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingHistory /></ProtectedRoute>} />
 
-          {/* ── M2: Customer Portal ─────────────────────────────────── */}
-          <Route
-            path="/customer/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['customer', 'admin']}>
-                <CustomerPortalDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/dashboard-legacy"
-            element={
-              <ProtectedRoute allowedRoles={['customer', 'admin']}>
-                <CustomerDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/profile"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/addresses"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerAddresses />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/subscriptions"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerSubscriptions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/quotations"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerQuotations />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/invoices"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerInvoices />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/payments"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerPayments />
-              </ProtectedRoute>
-            }
-          />
+          {/* ── M10: Invoice & Tax ──────────────────────────────────── */}
+          <Route path="/admin/invoices" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><InvoiceList /></ProtectedRoute>} />
+          <Route path="/admin/invoices/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateInvoice /></ProtectedRoute>} />
+          <Route path="/admin/invoices/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><InvoiceDetails /></ProtectedRoute>} />
+          <Route path="/admin/invoices/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><EditInvoice /></ProtectedRoute>} />
+          <Route path="/invoices/:id/print" element={<ProtectedRoute allowedRoles={['admin', 'staff', 'customer']}><InvoicePrintView /></ProtectedRoute>} />
+
+          {/* ── M11: Payment & Reconciliation ───────────────────────── */}
+          <Route path="/admin/payments" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PaymentList /></ProtectedRoute>} />
+          <Route path="/admin/payments/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><RecordPayment /></ProtectedRoute>} />
+          <Route path="/admin/payments/receipt/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff', 'customer']}><PaymentReceipt /></ProtectedRoute>} />
+          <Route path="/admin/payments/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PaymentDetails /></ProtectedRoute>} />
+          <Route path="/customer/payments/history" element={<ProtectedRoute allowedRoles={['customer']}><CustomerPaymentHistory /></ProtectedRoute>} />
+          <Route path="/customer/payments/:id" element={<ProtectedRoute allowedRoles={['customer']}><PaymentDetails /></ProtectedRoute>} />
+
+          {/* ── M12: Analytics (if available) ───────────────────────── */}
+          {AnalyticsDashboard && (
+            <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><AnalyticsDashboard /></ProtectedRoute>} />
+          )}
+
+          {/* ── M1: Staff & Customer Portals ────────────────────────── */}
+          <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><StaffDashboard /></ProtectedRoute>} />
+          <Route path="/customer/dashboard" element={<ProtectedRoute allowedRoles={['customer', 'admin']}><CustomerPortalDashboard /></ProtectedRoute>} />
+          <Route path="/customer/dashboard-legacy" element={<ProtectedRoute allowedRoles={['customer', 'admin']}><CustomerDashboard /></ProtectedRoute>} />
+          <Route path="/customer/profile" element={<ProtectedRoute allowedRoles={['customer']}><CustomerProfile /></ProtectedRoute>} />
+          <Route path="/customer/addresses" element={<ProtectedRoute allowedRoles={['customer']}><CustomerAddresses /></ProtectedRoute>} />
+          <Route path="/customer/subscriptions" element={<ProtectedRoute allowedRoles={['customer']}><CustomerSubscriptions /></ProtectedRoute>} />
+          <Route path="/customer/quotations" element={<ProtectedRoute allowedRoles={['customer']}><CustomerQuotations /></ProtectedRoute>} />
+          <Route path="/customer/invoices" element={<ProtectedRoute allowedRoles={['customer']}><CustomerInvoices /></ProtectedRoute>} />
+          <Route path="/customer/payments" element={<ProtectedRoute allowedRoles={['customer']}><CustomerPayments /></ProtectedRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<RootRedirect />} />
