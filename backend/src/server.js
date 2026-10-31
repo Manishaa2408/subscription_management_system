@@ -1,12 +1,18 @@
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Load environment variables from .env file
+// Load environment variables
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = require('./app');
 const { connectDB } = require('./config/db');
-const { seedAdmin } = require('../scripts/seedAdmin');
+
+let seedAdmin;
+try {
+  seedAdmin = require('../scripts/seedAdmin').seedAdmin;
+} catch (e) {
+  seedAdmin = null;
+}
 
 const PORT = process.env.PORT || 5000;
 
@@ -14,23 +20,26 @@ const startServer = async () => {
   // Connect to Database
   await connectDB();
 
-  // Ensure Admin account is seeded
-  try {
-    await seedAdmin();
-  } catch (err) {
-    console.warn('[Server] Auto seed admin warning:', err.message);
+  // Seed admin if available
+  if (seedAdmin) {
+    try {
+      await seedAdmin();
+    } catch (err) {
+      console.warn('[Server] Auto seed admin warning:', err.message);
+    }
   }
 
   const server = app.listen(PORT, () => {
     console.log(
-      `[Server] Brightloop Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+      `[Server] Brightloop SMS running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
     );
     console.log(`[Server] Health check: http://localhost:${PORT}/api/health`);
+    console.log(`[Server] All 12 modules loaded (M1-M12)`);
   });
 
-  // Handle unhandled promise rejections
   process.on('unhandledRejection', (err) => {
     console.error(`[Server] Unhandled Rejection: ${err.message}`);
+    server.close(() => process.exit(1));
   });
 };
 

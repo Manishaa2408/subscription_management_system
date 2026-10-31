@@ -1,22 +1,24 @@
 {
   "name": "brightloop-backend",
   "version": "1.0.0",
-  "description": "Backend API for Brightloop Software Subscription Management System",
+  "description": "Brightloop Software - Subscription Management System Backend (All Modules M1-M12)",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed:admin": "node scripts/seedAdmin.js",
     "seed:m2": "node src/modules/customers/seeds/customerSeed.js",
+    "seed:m5": "node scripts/seedDevelopmentCatalog.js",
+    "seed:m8": "node scripts/seedDiscounts.js",
     "test:m1": "node tests/m1_test.js",
-    "test:m2": "node tests/m2_test.js"
+    "test:m2": "node tests/m2_test.js",
+    "test:m5": "node scripts/runM5Tests.js",
+    "test:m6": "node scripts/runM6Tests.js",
+    "test:m7": "node scripts/runM7Tests.js",
+    "test:m8": "node scripts/runM8Tests.js"
   },
-  "keywords": [
-    "mern",
-    "subscription-management",
-    "odoo-hackathon"
-  ],
-  "author": "Developer 1 - Brightloop Team",
+  "keywords": ["mern", "subscription-management", "odoo-hackathon", "brightloop"],
+  "author": "Brightloop Team – Odoo Make-A-Ton 9.0 Hackathon 2026",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -24,9 +26,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-validator": "^7.1.0",
+    "express-validator": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.4.0"
+    "mongoose": "^8.7.0",
+    "node-cron": "^3.0.0"
   },
   "devDependencies": {
     "mongodb-memory-server": "^9.2.0",
