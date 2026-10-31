@@ -28,6 +28,11 @@ import CustomerPortalDashboard from './pages/customer/CustomerPortalDashboard';
 import CustomerProfile from './pages/customer/CustomerProfile';
 import CustomerAddresses from './pages/customer/CustomerAddresses';
 import CustomerSubscriptions from './pages/customer/CustomerSubscriptions';
+import PlanDashboard from './pages/admin/PlanDashboard';
+import PlanCreate from './pages/admin/PlanCreate';
+import PlanEdit from './pages/admin/PlanEdit';
+import PlanDetails from './pages/admin/PlanDetails';
+import PlanCatalog from './pages/customer/PlanCatalog';
 import CustomerQuotations from './pages/customer/CustomerQuotations';
 import CustomerInvoices from './pages/customer/CustomerInvoices';
 import CustomerPayments from './pages/customer/CustomerPayments';
@@ -118,6 +123,47 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <EditCustomer />
+              </ProtectedRoute>
+            }
+          />
+          {/* ── Admin: M4 Subscription Plan Management ───────────────────── */}
+          <Route
+            path="/admin/plans"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PlanDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/plans/create"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PlanCreate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/plans/:id/edit"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PlanEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/plans/:id"
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'staff']}>
+                <PlanDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer/plans"
+            element={
+              <ProtectedRoute allowedRoles={['customer', 'admin']}>
+                <PlanCatalog />
               </ProtectedRoute>
             }
           />

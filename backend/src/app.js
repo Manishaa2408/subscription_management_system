@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const customerRoutes = require('./modules/customers/routes/customerRoutes');
 const customerPortalRoutes = require('./modules/customers/routes/customerPortalRoutes');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
+const planRoutes = require('./modules/plans/routes/planRoutes');
 const productRoutes = require('./modules/products/routes/productRoutes');
 const productCategoryRoutes = require('./modules/products/routes/productCategoryRoutes');
 const productVariantRoutes = require('./modules/products/routes/productVariantRoutes');
@@ -50,7 +51,8 @@ app.use('/api/customer-portal', customerPortalRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/product-categories', productCategoryRoutes);
 app.use('/api/products/:productId/variants', productVariantRoutes);
-// 404 Route Handler
+app.use('/api/plans', planRoutes);
+
 app.use(notFound);
 
 // Centralized Error Handler
