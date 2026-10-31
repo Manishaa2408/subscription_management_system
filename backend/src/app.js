@@ -3,6 +3,8 @@ import cors from "cors";
 import quotationTemplateRoutes from "./modules/quotationTemplates/routes/quotationTemplateRoutes.js";
 import quotationRoutes from "./modules/quotations/routes/quotationRoutes.js";
 import subscriptionRoutes from "./modules/subscriptions/routes/subscriptionRoutes.js";
+import discountCampaignRoutes from "./modules/discounts/routes/discountCampaignRoutes.js";
+import discountRoutes from "./modules/discounts/routes/discountRoutes.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
@@ -17,7 +19,12 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Brightloop SMS API is running",
-    modules: ["M5 - Quotation Templates", "M6 - Quotation Management", "M7 - Subscription Lifecycle"],
+    modules: [
+      "M5 - Quotation Templates",
+      "M6 - Quotation Management",
+      "M7 - Subscription Lifecycle",
+      "M8 - Discount Management"
+    ],
     environment: process.env.NODE_ENV || "development"
   });
 });
@@ -30,6 +37,10 @@ app.use("/api/quotations", quotationRoutes);
 
 // Subscription Lifecycle Management Routes (M7)
 app.use("/api/subscriptions", subscriptionRoutes);
+
+// Discount Management Routes (M8)
+app.use("/api/discount-campaigns", discountCampaignRoutes);
+app.use("/api/discounts", discountRoutes);
 
 // 404 & Centralized Error Handler
 app.use(notFoundHandler);
