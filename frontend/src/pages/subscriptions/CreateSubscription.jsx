@@ -212,12 +212,12 @@ export const CreateSubscription = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
             <Sparkles size={18} color="#2563eb" />
             <h2 style={{ fontSize: "1.15rem", fontWeight: 600, margin: 0 }}>
-              Convert M6 Accepted Quotation to Active Subscription
+              Convert Accepted Quotation to Active Subscription
             </h2>
           </div>
 
           <p style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "20px" }}>
-            Select any proposal that has been formally accepted by the customer. The system will atomically generate a unique subscription number, snapshot commercial rates, and register the recurring billing schedule in M9.
+            Select any proposal that has been formally accepted by the customer. The system will automatically generate a unique subscription number, snapshot commercial rates, and register the recurring billing schedule.
           </p>
 
           {acceptedQuotations.length === 0 ? (

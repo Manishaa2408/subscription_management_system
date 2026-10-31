@@ -73,14 +73,9 @@ export default function BillingDashboard() {
         {/* Top Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                Module 9
-              </span>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recurring Billing Engine</h1>
-            </div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recurring Billing Engine</h1>
             <p className="text-sm text-slate-500 mt-1">
-              Automated recurring schedules, due date processing, and M10 invoice generation requests
+              Automated recurring billing schedules, due date execution, and tax invoice generation
             </p>
           </div>
 

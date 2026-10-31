@@ -211,7 +211,7 @@ export const SubscriptionDashboard = () => {
                   <th>Current Period End</th>
                   <th>Next Billing</th>
                   <th>Amount</th>
-                  <th>M9 Sync</th>
+                  <th>Billing Sync</th>
                   <th style={{ textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>

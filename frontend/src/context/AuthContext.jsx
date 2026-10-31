@@ -8,31 +8,31 @@ export const PRESET_USERS = [
     key: 'admin',
     id: 'usr_admin_001',
     role: 'admin',
-    name: 'Admin (Brightloop)',
-    email: 'admin@brightloop.io',
+    name: 'Brightloop Admin',
+    email: 'admin@brightloop.com',
     description: 'Full administrative access across all 12 modules'
   },
   {
     key: 'staff',
     id: 'usr_staff_001',
     role: 'staff',
-    name: 'Ops Staff (Brightloop)',
-    email: 'staff@brightloop.io',
+    name: 'Sarah Jenkins (Staff)',
+    email: 'staff@brightloop.com',
     description: 'Operational view: create quotations, monitor billing runs, view invoices & payments'
   },
   {
     key: 'customer1',
     id: 'cust_001_intra_kerala',
     role: 'customer',
-    name: 'Kochi Tech Labs (Customer - Intra Kerala)',
-    email: 'finance@kochitechlabs.com',
+    name: 'Rahul Sharma (Customer)',
+    email: 'customer@brightloop.com',
     description: 'Customer portal: view catalog, accept quotations, view subscriptions & invoices'
   },
   {
     key: 'customer2',
     id: 'cust_002_inter_bengaluru',
     role: 'customer',
-    name: 'Bengaluru Cloud (Customer - Inter Karnataka)',
+    name: 'Bengaluru Cloud (Customer)',
     email: 'accounts@bengalurucloud.io',
     description: 'Customer portal: view catalog, accept quotations, view subscriptions & invoices'
   }

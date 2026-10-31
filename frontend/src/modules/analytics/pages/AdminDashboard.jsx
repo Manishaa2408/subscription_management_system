@@ -75,14 +75,9 @@ export default function AdminDashboard() {
         {/* Executive Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                Module 12
-              </span>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Executive Intelligence &amp; Analytics</h1>
-            </div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Executive Intelligence &amp; Analytics</h1>
             <p className="text-sm text-slate-500 mt-1">
-              Consolidated business telemetry from Billing (M9), Invoices (M10), and Payments (M11)
+              Consolidated executive telemetry across billing schedules, revenue, invoices, and payments
             </p>
           </div>
 

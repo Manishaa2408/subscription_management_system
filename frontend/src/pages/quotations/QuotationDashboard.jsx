@@ -282,7 +282,7 @@ export const QuotationDashboard = () => {
                           <button
                             className="btn btn-primary btn-sm"
                             style={{ background: "#7c3aed" }}
-                            title="Convert to M7 Subscription"
+                            title="Convert to Subscription"
                             onClick={() => handleConvert(q._id, q.quotationNumber)}
                             disabled={q.subscriptionConversion?.status === "converted"}
                           >

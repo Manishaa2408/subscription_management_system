@@ -174,7 +174,7 @@ export const QuotationDetails = () => {
             </>
           )}
 
-          {/* Accepted Conversion to M7 Subscription */}
+          {/* Accepted Conversion to Subscription */}
           {!isCustomer && isAccepted && (
             <button
               className="btn btn-primary"
@@ -182,7 +182,7 @@ export const QuotationDetails = () => {
               onClick={handleConvert}
               disabled={quotation.subscriptionConversion?.status === "converted"}
             >
-              <ArrowUpRight size={16} /> {quotation.subscriptionConversion?.status === "converted" ? "Converted to M7" : "Convert to Subscription (M7)"}
+              <ArrowUpRight size={16} /> {quotation.subscriptionConversion?.status === "converted" ? "Converted to Subscription" : "Convert to Subscription"}
             </button>
           )}
 
@@ -200,7 +200,7 @@ export const QuotationDetails = () => {
         <div className="alert alert-success" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <ShieldCheck size={20} />
           <div>
-            <strong>M7 Subscription Active:</strong> Subscription ID <code>{quotation.subscriptionConversion.subscriptionId}</code> was created from this quotation on {new Date(quotation.subscriptionConversion.convertedAt).toLocaleString()}.
+            <strong>Subscription Activated:</strong> Subscription ID <code>{quotation.subscriptionConversion.subscriptionId}</code> was created from this quotation on {new Date(quotation.subscriptionConversion.convertedAt).toLocaleString()}.
           </div>
         </div>
       )}

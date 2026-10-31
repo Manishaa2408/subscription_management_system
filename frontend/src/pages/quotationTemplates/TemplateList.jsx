@@ -31,7 +31,7 @@ export const TemplateList = () => {
           Access Denied
         </h2>
         <p style={{ color: "#64748b", maxWidth: "480px", margin: "0 auto" }}>
-          Customer accounts cannot view or manage internal quotation templates. Please switch to an <strong>Admin</strong> or <strong>Staff</strong> role above to test M5.
+          Customer accounts cannot view or manage internal quotation templates. Please switch to an <strong>Admin</strong> or <strong>Staff</strong> account to manage sales packages.
         </p>
       </div>
     );

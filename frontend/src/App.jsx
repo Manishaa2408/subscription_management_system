@@ -1,7 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { Navbar } from './components/Navbar';
+import { AppLayout } from './layouts/AppLayout';
 
 // ── M1: Auth & User Management Pages ──
 import Login from './pages/auth/Login';
@@ -86,110 +86,117 @@ import CustomerAnalytics from './modules/analytics/pages/CustomerAnalytics';
 import SubscriptionAnalytics from './modules/analytics/pages/SubscriptionAnalytics';
 import ProductAnalytics from './modules/analytics/pages/ProductAnalytics';
 
+// Layout wrapper for authenticated routes
+const AuthenticatedShell = () => (
+  <AppLayout>
+    <Outlet />
+  </AppLayout>
+);
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              {/* Default Redirect */}
-              <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        <Routes>
+          {/* Public & Auth Routes (Standalone cleanly styled pages without sidebar) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/invoices/:id/print" element={<InvoicePrintView />} />
 
-              {/* ── Public & Auth (M1) ── */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:token" element={<ResetPassword />} />
-              <Route path="/unauthorized" element={<Unauthorized />} />
+          {/* Authenticated Application Routes (Protected with unified Sidebar & Header) */}
+          <Route element={<AuthenticatedShell />}>
+            {/* Default redirect to Dashboard */}
+            <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
 
-              {/* ── M12: Executive Dashboard & Analytics ── */}
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/analytics/revenue" element={<RevenueAnalytics />} />
-              <Route path="/admin/analytics/customers" element={<CustomerAnalytics />} />
-              <Route path="/admin/analytics/subscriptions" element={<SubscriptionAnalytics />} />
-              <Route path="/admin/analytics/products" element={<ProductAnalytics />} />
+            {/* Overview & Analytics (M12) */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/analytics/revenue" element={<RevenueAnalytics />} />
+            <Route path="/admin/analytics/customers" element={<CustomerAnalytics />} />
+            <Route path="/admin/analytics/subscriptions" element={<SubscriptionAnalytics />} />
+            <Route path="/admin/analytics/products" element={<ProductAnalytics />} />
 
-              {/* ── M1: User Management ── */}
-              <Route path="/admin/users" element={<UserManagement />} />
-              <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            {/* Customers (M2) */}
+            <Route path="/admin/customers" element={<CustomerList />} />
+            <Route path="/admin/customers/create" element={<CreateCustomer />} />
+            <Route path="/admin/customers/:id" element={<CustomerDetails />} />
+            <Route path="/admin/customers/:id/edit" element={<EditCustomer />} />
 
-              {/* ── M2: Customer Management & Portal ── */}
-              <Route path="/admin/customers" element={<CustomerList />} />
-              <Route path="/admin/customers/create" element={<CreateCustomer />} />
-              <Route path="/admin/customers/:id" element={<CustomerDetails />} />
-              <Route path="/admin/customers/:id/edit" element={<EditCustomer />} />
-              <Route path="/customer/dashboard" element={<CustomerPortalDashboard />} />
-              <Route path="/customer/profile" element={<CustomerProfile />} />
-              <Route path="/customer/addresses" element={<CustomerAddresses />} />
-              <Route path="/customer/catalog" element={<CustomerSubscriptions />} />
+            {/* Customer Portal (M2, M6, M7, M10, M11) */}
+            <Route path="/customer/dashboard" element={<CustomerPortalDashboard />} />
+            <Route path="/customer/profile" element={<CustomerProfile />} />
+            <Route path="/customer/addresses" element={<CustomerAddresses />} />
+            <Route path="/customer/invoices" element={<CustomerInvoices />} />
+            <Route path="/customer/payments" element={<CustomerPaymentHistory />} />
+            <Route path="/customer/payments/:id" element={<PaymentDetails />} />
+            <Route path="/portal/quotations" element={<QuotationCustomerPortal />} />
+            <Route path="/portal/subscriptions" element={<CustomerSubscriptions />} />
+            <Route path="/customer/catalog" element={<CustomerSubscriptions />} />
 
-              {/* ── M3 & M4: Products & Subscription Plans ── */}
-              <Route path="/admin/products" element={<PlanDashboard />} />
-              <Route path="/admin/plans" element={<PlanDashboard />} />
-              <Route path="/admin/plans/create" element={<PlanCreate />} />
-              <Route path="/admin/plans/:id/edit" element={<PlanEdit />} />
+            {/* Products & Subscription Plans (M3, M4) */}
+            <Route path="/admin/products" element={<PlanDashboard />} />
+            <Route path="/admin/plans" element={<PlanDashboard />} />
+            <Route path="/admin/plans/create" element={<PlanCreate />} />
+            <Route path="/admin/plans/:id/edit" element={<PlanEdit />} />
 
-              {/* ── M5: Quotation Templates ── */}
-              <Route path="/templates" element={<TemplateList />} />
-              <Route path="/templates/create" element={<CreateTemplate />} />
-              <Route path="/templates/:id" element={<TemplateDetails />} />
-              <Route path="/templates/:id/edit" element={<EditTemplate />} />
+            {/* Quotation Templates (M5) */}
+            <Route path="/templates" element={<TemplateList />} />
+            <Route path="/templates/create" element={<CreateTemplate />} />
+            <Route path="/templates/:id" element={<TemplateDetails />} />
+            <Route path="/templates/:id/edit" element={<EditTemplate />} />
 
-              {/* ── M6: Quotations ── */}
-              <Route path="/quotations" element={<QuotationDashboard />} />
-              <Route path="/quotations/create" element={<CreateQuotation />} />
-              <Route path="/quotations/:id" element={<QuotationDetails />} />
-              <Route path="/quotations/:id/edit" element={<EditQuotation />} />
-              <Route path="/portal/quotations" element={<QuotationCustomerPortal />} />
+            {/* Quotations (M6) */}
+            <Route path="/quotations" element={<QuotationDashboard />} />
+            <Route path="/quotations/create" element={<CreateQuotation />} />
+            <Route path="/quotations/:id" element={<QuotationDetails />} />
+            <Route path="/quotations/:id/edit" element={<EditQuotation />} />
 
-              {/* ── M7: Subscription Lifecycle ── */}
-              <Route path="/subscriptions" element={<SubscriptionDashboard />} />
-              <Route path="/subscriptions/create" element={<CreateSubscription />} />
-              <Route path="/subscriptions/:id" element={<SubscriptionDetails />} />
-              <Route path="/portal/subscriptions" element={<CustomerSubscriptions />} />
+            {/* Subscriptions (M7) */}
+            <Route path="/subscriptions" element={<SubscriptionDashboard />} />
+            <Route path="/subscriptions/create" element={<CreateSubscription />} />
+            <Route path="/subscriptions/:id" element={<SubscriptionDetails />} />
 
-              {/* ── M8: Discounts ── */}
-              <Route path="/discounts" element={<DiscountDashboard />} />
-              <Route path="/discounts/create" element={<CreateDiscount />} />
-              <Route path="/discounts/edit/:id" element={<EditDiscount />} />
-              <Route path="/discounts/details/:id" element={<DiscountDetails />} />
-              <Route path="/discounts/test" element={<DiscountTester />} />
+            {/* Discounts (M8) */}
+            <Route path="/discounts" element={<DiscountDashboard />} />
+            <Route path="/discounts/create" element={<CreateDiscount />} />
+            <Route path="/discounts/edit/:id" element={<EditDiscount />} />
+            <Route path="/discounts/details/:id" element={<DiscountDetails />} />
+            <Route path="/discounts/test" element={<DiscountTester />} />
 
-              {/* ── M9: Recurring Billing & Invoice Generation Engine ── */}
-              <Route path="/admin/billing" element={<BillingDashboard />} />
-              <Route path="/admin/billing/schedules" element={<BillingScheduleList />} />
-              <Route path="/admin/billing/schedules/:id" element={<BillingScheduleDetails />} />
-              <Route path="/admin/billing/runs" element={<BillingRuns />} />
-              <Route path="/admin/billing/runs/:id" element={<BillingRunDetails />} />
-              <Route path="/admin/billing/failed" element={<FailedBillings />} />
-              <Route path="/admin/billing/history" element={<BillingHistory />} />
+            {/* Recurring Billing (M9) */}
+            <Route path="/admin/billing" element={<BillingDashboard />} />
+            <Route path="/admin/billing/schedules" element={<BillingScheduleList />} />
+            <Route path="/admin/billing/schedules/:id" element={<BillingScheduleDetails />} />
+            <Route path="/admin/billing/runs" element={<BillingRuns />} />
+            <Route path="/admin/billing/runs/:id" element={<BillingRunDetails />} />
+            <Route path="/admin/billing/failed" element={<FailedBillings />} />
+            <Route path="/admin/billing/history" element={<BillingHistory />} />
 
-              {/* ── M10: Invoice & Tax Management ── */}
-              <Route path="/admin/invoices" element={<InvoiceList />} />
-              <Route path="/admin/invoices/create" element={<CreateInvoice />} />
-              <Route path="/admin/invoices/:id" element={<InvoiceDetails />} />
-              <Route path="/admin/invoices/:id/edit" element={<EditInvoice />} />
-              <Route path="/admin/tax-configurations" element={<TaxConfigurationList />} />
-              <Route path="/customer/invoices" element={<CustomerInvoices />} />
-              <Route path="/invoices/:id/print" element={<InvoicePrintView />} />
+            {/* Invoices & Taxes (M10) */}
+            <Route path="/admin/invoices" element={<InvoiceList />} />
+            <Route path="/admin/invoices/create" element={<CreateInvoice />} />
+            <Route path="/admin/invoices/:id" element={<InvoiceDetails />} />
+            <Route path="/admin/invoices/:id/edit" element={<EditInvoice />} />
+            <Route path="/admin/tax-configurations" element={<TaxConfigurationList />} />
 
-              {/* ── M11: Payment & Reconciliation Management ── */}
-              <Route path="/admin/payments" element={<PaymentList />} />
-              <Route path="/admin/payments/create" element={<RecordPayment />} />
-              <Route path="/admin/payments/:id" element={<PaymentDetails />} />
-              <Route path="/admin/payments/receipt/:id" element={<PaymentReceipt />} />
-              <Route path="/admin/reconciliation" element={<ReconciliationDashboard />} />
-              <Route path="/admin/refunds" element={<RefundList />} />
-              <Route path="/customer/payments" element={<CustomerPaymentHistory />} />
-              <Route path="/customer/payments/:id" element={<PaymentDetails />} />
+            {/* Payments & Reconciliation (M11) */}
+            <Route path="/admin/payments" element={<PaymentList />} />
+            <Route path="/admin/payments/create" element={<RecordPayment />} />
+            <Route path="/admin/payments/:id" element={<PaymentDetails />} />
+            <Route path="/admin/payments/receipt/:id" element={<PaymentReceipt />} />
+            <Route path="/admin/reconciliation" element={<ReconciliationDashboard />} />
+            <Route path="/admin/refunds" element={<RefundList />} />
 
-              {/* 404 Catch-All */}
-              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
-            </Routes>
-          </main>
-        </div>
+            {/* Administration & Staff (M1) */}
+            <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/staff/dashboard" element={<StaffDashboard />} />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );

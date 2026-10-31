@@ -146,7 +146,7 @@ export const TemplateDetails = () => {
             {template.validityDays} Days
           </div>
           <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "4px" }}>
-            Used by M6 to compute customer quotation expiration.
+            Default duration before customer quotation proposal expires.
           </div>
         </div>
 

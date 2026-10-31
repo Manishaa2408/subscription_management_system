@@ -60,7 +60,7 @@ const ForgotPassword = () => {
             <div>{successMessage}</div>
             {devResetUrl && (
               <div style={{ marginTop: '0.75rem', fontSize: '0.825rem' }}>
-                <strong>Hackathon Dev Notice:</strong>
+                <strong>Quick Reset Link:</strong>
                 <br />
                 <Link
                   to={devResetUrl}

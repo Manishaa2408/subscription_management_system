@@ -13,12 +13,12 @@ export const BillingInformationCard = ({ subscription, onSyncUpdated }) => {
       setRetrying(true);
       setSyncMsg(null);
       const res = await subscriptionService.retryBillingSync(subscription._id);
-      setSyncMsg({ type: "success", text: res.message || "M9 Billing schedule synced successfully" });
+      setSyncMsg({ type: "success", text: res.message || "Billing schedule synced successfully" });
       if (onSyncUpdated) onSyncUpdated();
     } catch (err) {
       setSyncMsg({
         type: "error",
-        text: err.response?.data?.message || err.message || "Failed to sync with M9 engine"
+        text: err.response?.data?.message || err.message || "Failed to sync billing schedule"
       });
     } finally {
       setRetrying(false);
@@ -118,7 +118,7 @@ export const BillingInformationCard = ({ subscription, onSyncUpdated }) => {
         </div>
 
         <div>
-          <span style={{ color: "#64748b", display: "block", fontSize: "0.75rem" }}>M9 Schedule Reference</span>
+          <span style={{ color: "#64748b", display: "block", fontSize: "0.75rem" }}>Schedule Reference</span>
           <code>{subscription.billingIntegration?.externalScheduleId || "None"}</code>
         </div>
       </div>
@@ -126,7 +126,7 @@ export const BillingInformationCard = ({ subscription, onSyncUpdated }) => {
       {/* Sync Failure or Warning */}
       {subscription.billingIntegration?.lastError && (
         <div style={{ marginTop: "14px", padding: "10px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: "6px", fontSize: "0.8rem", color: "#b91c1c" }}>
-          <strong>M9 Sync Error:</strong> {subscription.billingIntegration.lastError}
+          <strong>Sync Error:</strong> {subscription.billingIntegration.lastError}
         </div>
       )}
 

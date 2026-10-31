@@ -357,7 +357,7 @@ export const SubscriptionDetails = () => {
       {/* TAB 1: OVERVIEW & ITEMS */}
       {activeTab === "overview" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "20px" }}>
-          {/* M9 Billing Information Card */}
+          {/* Billing Information Card */}
           <BillingInformationCard subscription={subscription} onSyncUpdated={loadSubscription} />
 
           {/* Line Items Table */}
