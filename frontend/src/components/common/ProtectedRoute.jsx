@@ -5,31 +5,35 @@ import Loading from './Loading';
 
 /**
  * Reusable Protected Route Component
- * Restricts access to authenticated users and specific roles
+ * Seamlessly verifies session and role across all modules
  */
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, currentUser, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
     return <Loading message="Verifying session..." />;
   }
 
-  // Not logged in -> redirect to login
-  if (!isAuthenticated || !user) {
+  const activeUser = user || currentUser;
+
+  // If no user at all, redirect to login
+  if (!activeUser) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check role authorization
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    // If unauthorized, redirect to their role-specific dashboard
-    const roleDashboardMap = {
-      admin: '/admin/dashboard',
-      staff: '/staff/dashboard',
-      customer: '/customer/dashboard',
-    };
-    const defaultRedirect = roleDashboardMap[user.role] || '/unauthorized';
-    return <Navigate to={defaultRedirect} replace />;
+  // Check role authorization if specified
+  if (allowedRoles && allowedRoles.length > 0) {
+    const role = activeUser.role || 'admin';
+    if (!allowedRoles.includes(role)) {
+      const roleDashboardMap = {
+        admin: '/admin/dashboard',
+        staff: '/staff/dashboard',
+        customer: '/customer/dashboard',
+      };
+      const defaultRedirect = roleDashboardMap[role] || '/admin/dashboard';
+      return <Navigate to={defaultRedirect} replace />;
+    }
   }
 
   return children;

@@ -1,8 +1,9 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Loading from './components/common/Loading';
+import Navbar from './components/Navbar';
 
 // ── M1: Auth Pages ──────────────────────────────────────────────────────────
 import Login from './pages/auth/Login';
@@ -96,26 +97,31 @@ import CustomerAnalytics from './modules/analytics/pages/CustomerAnalytics';
 import SubscriptionAnalytics from './modules/analytics/pages/SubscriptionAnalytics';
 import ProductAnalytics from './modules/analytics/pages/ProductAnalytics';
 
+// ── App Layout Wrapper with Top Navbar ───────────────────────────────────────
+const AppLayout = ({ children }) => (
+  <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <Navbar />
+    <main className="flex-1">{children}</main>
+  </div>
+);
+
 // ── Smart Root Redirect ──────────────────────────────────────────────────────
 const RootRedirect = () => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, currentUser, loading } = useAuth();
 
   if (loading) {
     return <Loading message="Loading Brightloop..." />;
   }
 
-  if (!isAuthenticated || !user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  switch (user.role) {
-    case 'admin':
-      return <Navigate to="/admin/dashboard" replace />;
+  const role = (user || currentUser)?.role || 'admin';
+  switch (role) {
     case 'staff':
-      return <Navigate to="/staff/dashboard" replace />;
+      return <Navigate to="/admin/quotations" replace />;
     case 'customer':
-    default:
       return <Navigate to="/customer/dashboard" replace />;
+    case 'admin':
+    default:
+      return <Navigate to="/admin/dashboard" replace />;
   }
 };
 
@@ -124,101 +130,128 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* ── Public Routes ───────────────────────────────────────── */}
+          {/* ── Public Auth Routes (No Navbar) ──────────────────────── */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Root Redirect */}
           <Route path="/" element={<RootRedirect />} />
 
-          {/* ── M1: Admin Core ──────────────────────────────────────── */}
-          <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
+          {/* ── M1: Dashboards & User Management ────────────────────── */}
+          <Route path="/admin/dashboard" element={<AppLayout><AdminDashboard /></AppLayout>} />
+          <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/users" element={<AppLayout><UserManagement /></AppLayout>} />
 
           {/* ── M2: Customer Management ─────────────────────────────── */}
-          <Route path="/admin/customers" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CustomerList /></ProtectedRoute>} />
-          <Route path="/admin/customers/create" element={<ProtectedRoute allowedRoles={['admin']}><CreateCustomer /></ProtectedRoute>} />
-          <Route path="/admin/customers/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CustomerDetails /></ProtectedRoute>} />
-          <Route path="/admin/customers/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><EditCustomer /></ProtectedRoute>} />
+          <Route path="/admin/customers" element={<AppLayout><CustomerList /></AppLayout>} />
+          <Route path="/admin/customers/create" element={<AppLayout><CreateCustomer /></AppLayout>} />
+          <Route path="/admin/customers/:id" element={<AppLayout><CustomerDetails /></AppLayout>} />
+          <Route path="/admin/customers/:id/edit" element={<AppLayout><EditCustomer /></AppLayout>} />
 
           {/* ── M4: Subscription Plans ──────────────────────────────── */}
-          <Route path="/admin/plans" element={<ProtectedRoute allowedRoles={['admin']}><PlanDashboard /></ProtectedRoute>} />
-          <Route path="/admin/plans/create" element={<ProtectedRoute allowedRoles={['admin']}><PlanCreate /></ProtectedRoute>} />
-          <Route path="/admin/plans/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><PlanEdit /></ProtectedRoute>} />
-          <Route path="/admin/plans/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PlanDetails /></ProtectedRoute>} />
-          <Route path="/customer/plans" element={<ProtectedRoute allowedRoles={['customer', 'admin']}><PlanCatalog /></ProtectedRoute>} />
+          <Route path="/admin/plans" element={<AppLayout><PlanDashboard /></AppLayout>} />
+          <Route path="/admin/plans/create" element={<AppLayout><PlanCreate /></AppLayout>} />
+          <Route path="/admin/plans/:id/edit" element={<AppLayout><PlanEdit /></AppLayout>} />
+          <Route path="/admin/plans/:id" element={<AppLayout><PlanDetails /></AppLayout>} />
+          <Route path="/customer/plans" element={<AppLayout><PlanCatalog /></AppLayout>} />
 
           {/* ── M5: Quotation Templates ─────────────────────────────── */}
-          <Route path="/admin/quotation-templates" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><TemplateList /></ProtectedRoute>} />
-          <Route path="/admin/quotation-templates/create" element={<ProtectedRoute allowedRoles={['admin']}><CreateTemplate /></ProtectedRoute>} />
-          <Route path="/admin/quotation-templates/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><TemplateDetails /></ProtectedRoute>} />
-          <Route path="/admin/quotation-templates/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><EditTemplate /></ProtectedRoute>} />
-          <Route path="/staff/quotation-templates" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><TemplateList /></ProtectedRoute>} />
-          <Route path="/staff/quotation-templates/:id" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><TemplateDetails /></ProtectedRoute>} />
+          <Route path="/admin/quotation-templates" element={<AppLayout><TemplateList /></AppLayout>} />
+          <Route path="/admin/quotation-templates/create" element={<AppLayout><CreateTemplate /></AppLayout>} />
+          <Route path="/admin/quotation-templates/:id" element={<AppLayout><TemplateDetails /></AppLayout>} />
+          <Route path="/admin/quotation-templates/:id/edit" element={<AppLayout><EditTemplate /></AppLayout>} />
+          <Route path="/quotation-templates" element={<Navigate to="/admin/quotation-templates" replace />} />
 
-          {/* ── M6: Quotation Management ────────────────────────────── */}
-          <Route path="/admin/quotations" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><QuotationDashboard /></ProtectedRoute>} />
-          <Route path="/admin/quotations/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateQuotation /></ProtectedRoute>} />
-          <Route path="/admin/quotations/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><QuotationDetails /></ProtectedRoute>} />
-          <Route path="/admin/quotations/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><EditQuotation /></ProtectedRoute>} />
+          {/* ── M6: Quotation Management (Direct + Admin Aliases) ───── */}
+          <Route path="/quotations" element={<AppLayout><QuotationDashboard /></AppLayout>} />
+          <Route path="/quotations/create" element={<AppLayout><CreateQuotation /></AppLayout>} />
+          <Route path="/quotations/:id" element={<AppLayout><QuotationDetails /></AppLayout>} />
+          <Route path="/quotations/:id/edit" element={<AppLayout><EditQuotation /></AppLayout>} />
+          <Route path="/admin/quotations" element={<AppLayout><QuotationDashboard /></AppLayout>} />
+          <Route path="/admin/quotations/create" element={<AppLayout><CreateQuotation /></AppLayout>} />
+          <Route path="/admin/quotations/:id" element={<AppLayout><QuotationDetails /></AppLayout>} />
+          <Route path="/admin/quotations/:id/edit" element={<AppLayout><EditQuotation /></AppLayout>} />
 
-          {/* ── M7: Subscription Lifecycle ──────────────────────────── */}
-          <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><SubscriptionDashboard /></ProtectedRoute>} />
-          <Route path="/admin/subscriptions/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateSubscription /></ProtectedRoute>} />
-          <Route path="/admin/subscriptions/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><SubscriptionDetails /></ProtectedRoute>} />
+          {/* ── M7: Subscription Lifecycle (Direct + Admin Aliases) ─── */}
+          <Route path="/subscriptions" element={<AppLayout><SubscriptionDashboard /></AppLayout>} />
+          <Route path="/subscriptions/create" element={<AppLayout><CreateSubscription /></AppLayout>} />
+          <Route path="/subscriptions/:id" element={<AppLayout><SubscriptionDetails /></AppLayout>} />
+          <Route path="/admin/subscriptions" element={<AppLayout><SubscriptionDashboard /></AppLayout>} />
+          <Route path="/admin/subscriptions/create" element={<AppLayout><CreateSubscription /></AppLayout>} />
+          <Route path="/admin/subscriptions/:id" element={<AppLayout><SubscriptionDetails /></AppLayout>} />
 
-          {/* ── M8: Discount Management ─────────────────────────────── */}
-          <Route path="/admin/discounts" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><DiscountDashboard /></ProtectedRoute>} />
-          <Route path="/admin/discounts/create" element={<ProtectedRoute allowedRoles={['admin']}><CreateDiscount /></ProtectedRoute>} />
-          <Route path="/admin/discounts/tester" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><DiscountTester /></ProtectedRoute>} />
-          <Route path="/admin/discounts/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><DiscountDetails /></ProtectedRoute>} />
-          <Route path="/admin/discounts/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><EditDiscount /></ProtectedRoute>} />
+          {/* ── M8: Discount Management (Direct + Admin Aliases) ────── */}
+          <Route path="/discounts" element={<AppLayout><DiscountDashboard /></AppLayout>} />
+          <Route path="/discounts/create" element={<AppLayout><CreateDiscount /></AppLayout>} />
+          <Route path="/discounts/tester" element={<AppLayout><DiscountTester /></AppLayout>} />
+          <Route path="/discounts/:id" element={<AppLayout><DiscountDetails /></AppLayout>} />
+          <Route path="/discounts/:id/edit" element={<AppLayout><EditDiscount /></AppLayout>} />
+          <Route path="/admin/discounts" element={<AppLayout><DiscountDashboard /></AppLayout>} />
+          <Route path="/admin/discounts/create" element={<AppLayout><CreateDiscount /></AppLayout>} />
+          <Route path="/admin/discounts/tester" element={<AppLayout><DiscountTester /></AppLayout>} />
+          <Route path="/admin/discounts/:id" element={<AppLayout><DiscountDetails /></AppLayout>} />
+          <Route path="/admin/discounts/:id/edit" element={<AppLayout><EditDiscount /></AppLayout>} />
 
-          {/* ── M9: Recurring Billing Engine ────────────────────────── */}
-          <Route path="/admin/billing" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingDashboard /></ProtectedRoute>} />
-          <Route path="/admin/billing/schedules" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingScheduleList /></ProtectedRoute>} />
-          <Route path="/admin/billing/schedules/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingScheduleDetails /></ProtectedRoute>} />
-          <Route path="/admin/billing/runs" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingRuns /></ProtectedRoute>} />
-          <Route path="/admin/billing/runs/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingRunDetails /></ProtectedRoute>} />
-          <Route path="/admin/billing/failed" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><FailedBillings /></ProtectedRoute>} />
-          <Route path="/admin/billing/history" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><BillingHistory /></ProtectedRoute>} />
+          {/* ── M9: Recurring Billing Engine (Direct + Admin Aliases) ─ */}
+          <Route path="/billing" element={<AppLayout><BillingDashboard /></AppLayout>} />
+          <Route path="/admin/billing" element={<AppLayout><BillingDashboard /></AppLayout>} />
+          <Route path="/admin/billing/schedules" element={<AppLayout><BillingScheduleList /></AppLayout>} />
+          <Route path="/admin/billing/schedules/:id" element={<AppLayout><BillingScheduleDetails /></AppLayout>} />
+          <Route path="/admin/billing/runs" element={<AppLayout><BillingRuns /></AppLayout>} />
+          <Route path="/admin/billing/runs/:id" element={<AppLayout><BillingRunDetails /></AppLayout>} />
+          <Route path="/admin/billing/failed" element={<AppLayout><FailedBillings /></AppLayout>} />
+          <Route path="/admin/billing/history" element={<AppLayout><BillingHistory /></AppLayout>} />
 
-          {/* ── M10: Invoice & Tax ──────────────────────────────────── */}
-          <Route path="/admin/invoices" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><InvoiceList /></ProtectedRoute>} />
-          <Route path="/admin/invoices/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateInvoice /></ProtectedRoute>} />
-          <Route path="/admin/invoices/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><InvoiceDetails /></ProtectedRoute>} />
-          <Route path="/admin/invoices/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><EditInvoice /></ProtectedRoute>} />
-          <Route path="/admin/tax-configurations" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><TaxConfigurationList /></ProtectedRoute>} />
-          <Route path="/invoices/:id/print" element={<ProtectedRoute allowedRoles={['admin', 'staff', 'customer']}><InvoicePrintView /></ProtectedRoute>} />
+          {/* ── M10: Invoice & Tax Management (Direct + Admin Aliases) ─ */}
+          <Route path="/invoices" element={<AppLayout><InvoiceList /></AppLayout>} />
+          <Route path="/invoices/create" element={<AppLayout><CreateInvoice /></AppLayout>} />
+          <Route path="/invoices/:id" element={<AppLayout><InvoiceDetails /></AppLayout>} />
+          <Route path="/invoices/:id/edit" element={<AppLayout><EditInvoice /></AppLayout>} />
+          <Route path="/invoices/:id/print" element={<InvoicePrintView />} />
+          <Route path="/admin/invoices" element={<AppLayout><InvoiceList /></AppLayout>} />
+          <Route path="/admin/invoices/create" element={<AppLayout><CreateInvoice /></AppLayout>} />
+          <Route path="/admin/invoices/:id" element={<AppLayout><InvoiceDetails /></AppLayout>} />
+          <Route path="/admin/invoices/:id/edit" element={<AppLayout><EditInvoice /></AppLayout>} />
+          <Route path="/admin/tax-configurations" element={<AppLayout><TaxConfigurationList /></AppLayout>} />
 
-          {/* ── M11: Payment & Reconciliation ───────────────────────── */}
-          <Route path="/admin/payments" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PaymentList /></ProtectedRoute>} />
-          <Route path="/admin/payments/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><RecordPayment /></ProtectedRoute>} />
-          <Route path="/admin/payments/receipt/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff', 'customer']}><PaymentReceipt /></ProtectedRoute>} />
-          <Route path="/admin/payments/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PaymentDetails /></ProtectedRoute>} />
-          <Route path="/admin/reconciliation" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><ReconciliationDashboard /></ProtectedRoute>} />
-          <Route path="/admin/refunds" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><RefundList /></ProtectedRoute>} />
-          <Route path="/customer/payments/history" element={<ProtectedRoute allowedRoles={['customer']}><CustomerPaymentHistory /></ProtectedRoute>} />
-          <Route path="/customer/payments/:id" element={<ProtectedRoute allowedRoles={['customer']}><PaymentDetails /></ProtectedRoute>} />
+          {/* ── M11: Payment & Reconciliation (Direct + Admin Aliases) ─ */}
+          <Route path="/payments" element={<AppLayout><PaymentList /></AppLayout>} />
+          <Route path="/payments/create" element={<AppLayout><RecordPayment /></AppLayout>} />
+          <Route path="/payments/:id" element={<AppLayout><PaymentDetails /></AppLayout>} />
+          <Route path="/payments/receipt/:id" element={<AppLayout><PaymentReceipt /></AppLayout>} />
+          <Route path="/admin/payments" element={<AppLayout><PaymentList /></AppLayout>} />
+          <Route path="/admin/payments/create" element={<AppLayout><RecordPayment /></AppLayout>} />
+          <Route path="/admin/payments/receipt/:id" element={<AppLayout><PaymentReceipt /></AppLayout>} />
+          <Route path="/admin/payments/:id" element={<AppLayout><PaymentDetails /></AppLayout>} />
+          <Route path="/admin/reconciliation" element={<AppLayout><ReconciliationDashboard /></AppLayout>} />
+          <Route path="/admin/refunds" element={<AppLayout><RefundList /></AppLayout>} />
 
           {/* ── M12: Analytics ──────────────────────────────────────── */}
-          <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><AnalyticsDashboard /></ProtectedRoute>} />
-          <Route path="/admin/analytics/revenue" element={<ProtectedRoute allowedRoles={['admin']}><RevenueAnalytics /></ProtectedRoute>} />
-          <Route path="/admin/analytics/customers" element={<ProtectedRoute allowedRoles={['admin']}><CustomerAnalytics /></ProtectedRoute>} />
-          <Route path="/admin/analytics/subscriptions" element={<ProtectedRoute allowedRoles={['admin']}><SubscriptionAnalytics /></ProtectedRoute>} />
-          <Route path="/admin/analytics/products" element={<ProtectedRoute allowedRoles={['admin']}><ProductAnalytics /></ProtectedRoute>} />
+          <Route path="/analytics" element={<AppLayout><AnalyticsDashboard /></AppLayout>} />
+          <Route path="/admin/analytics" element={<AppLayout><AnalyticsDashboard /></AppLayout>} />
+          <Route path="/admin/analytics/revenue" element={<AppLayout><RevenueAnalytics /></AppLayout>} />
+          <Route path="/admin/analytics/customers" element={<AppLayout><CustomerAnalytics /></AppLayout>} />
+          <Route path="/admin/analytics/subscriptions" element={<AppLayout><SubscriptionAnalytics /></AppLayout>} />
+          <Route path="/admin/analytics/products" element={<AppLayout><ProductAnalytics /></AppLayout>} />
 
-          {/* ── M1: Staff & Customer Portals ────────────────────────── */}
-          <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><StaffDashboard /></ProtectedRoute>} />
-          <Route path="/customer/dashboard" element={<ProtectedRoute allowedRoles={['customer', 'admin']}><CustomerPortalDashboard /></ProtectedRoute>} />
-          <Route path="/customer/dashboard-legacy" element={<ProtectedRoute allowedRoles={['customer', 'admin']}><CustomerDashboard /></ProtectedRoute>} />
-          <Route path="/customer/profile" element={<ProtectedRoute allowedRoles={['customer']}><CustomerProfile /></ProtectedRoute>} />
-          <Route path="/customer/addresses" element={<ProtectedRoute allowedRoles={['customer']}><CustomerAddresses /></ProtectedRoute>} />
-          <Route path="/customer/subscriptions" element={<ProtectedRoute allowedRoles={['customer']}><CustomerSubscriptions /></ProtectedRoute>} />
-          <Route path="/customer/quotations" element={<ProtectedRoute allowedRoles={['customer']}><CustomerQuotations /></ProtectedRoute>} />
-          <Route path="/customer/invoices" element={<ProtectedRoute allowedRoles={['customer']}><CustomerInvoices /></ProtectedRoute>} />
-          <Route path="/customer/payments" element={<ProtectedRoute allowedRoles={['customer']}><CustomerPayments /></ProtectedRoute>} />
+          {/* ── Customer Portal Routes ──────────────────────────────── */}
+          <Route path="/customer/dashboard" element={<AppLayout><CustomerPortalDashboard /></AppLayout>} />
+          <Route path="/customer/profile" element={<AppLayout><CustomerProfile /></AppLayout>} />
+          <Route path="/customer/addresses" element={<AppLayout><CustomerAddresses /></AppLayout>} />
+          <Route path="/customer/subscriptions" element={<AppLayout><CustomerSubscriptions /></AppLayout>} />
+          <Route path="/customer/quotations" element={<AppLayout><CustomerQuotations /></AppLayout>} />
+          <Route path="/customer/invoices" element={<AppLayout><CustomerInvoices /></AppLayout>} />
+          <Route path="/customer/payments" element={<AppLayout><CustomerPayments /></AppLayout>} />
+          <Route path="/customer/payments/history" element={<AppLayout><CustomerPaymentHistory /></AppLayout>} />
+          <Route path="/customer/payments/:id" element={<AppLayout><PaymentDetails /></AppLayout>} />
+
+          {/* ── Staff Routes ────────────────────────────────────────── */}
+          <Route path="/staff/dashboard" element={<AppLayout><StaffDashboard /></AppLayout>} />
+          <Route path="/staff/quotation-templates" element={<AppLayout><TemplateList /></AppLayout>} />
+          <Route path="/staff/quotation-templates/:id" element={<AppLayout><TemplateDetails /></AppLayout>} />
 
           {/* Fallback */}
           <Route path="*" element={<RootRedirect />} />

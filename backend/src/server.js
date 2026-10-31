@@ -14,18 +14,34 @@ try {
   seedAdmin = null;
 }
 
+let autoSeedAll;
+try {
+  autoSeedAll = require('./seeds/autoSeed').autoSeedAll;
+} catch (e) {
+  autoSeedAll = null;
+}
+
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   // Connect to Database
   await connectDB();
 
-  // Seed admin if available
+  // Seed admin
   if (seedAdmin) {
     try {
       await seedAdmin();
     } catch (err) {
       console.warn('[Server] Auto seed admin warning:', err.message);
+    }
+  }
+
+  // Seed demo data for quotations, invoices, payments, discounts
+  if (autoSeedAll) {
+    try {
+      await autoSeedAll();
+    } catch (err) {
+      console.warn('[Server] Auto seed all warning:', err.message);
     }
   }
 
