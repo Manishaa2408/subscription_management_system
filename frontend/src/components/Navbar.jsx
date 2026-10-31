@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Layers, FileText, PlusCircle, ShieldAlert } from "lucide-react";
+import { Layers, FileText, PlusCircle, ShieldAlert, Tag } from "lucide-react";
 
 export const Navbar = () => {
   const { role, changeRole, isAdmin } = useAuth();
@@ -48,7 +48,7 @@ export const Navbar = () => {
             <Layers size={24} color="#1e40af" />
             <span>Brightloop Software</span>
           </Link>
-          <span className="brand-badge">M5 + M6 + M7</span>
+          <span className="brand-badge">M5 + M6 + M7 + M8</span>
         </div>
 
         <div className="nav-links">
@@ -69,6 +69,16 @@ export const Navbar = () => {
               className={`btn ${location.pathname.startsWith("/quotations") ? "btn-primary" : "btn-outline"}`}
             >
               <FileText size={16} /> Quotations
+            </Link>
+          )}
+
+          {/* Discounts (M8) */}
+          {role !== "customer" && (
+            <Link
+              to="/discounts"
+              className={`btn ${location.pathname.startsWith("/discounts") ? "btn-primary" : "btn-outline"}`}
+            >
+              <Tag size={16} /> Discounts
             </Link>
           )}
 
@@ -110,10 +120,10 @@ export const Navbar = () => {
           {/* Quick Create Button */}
           {role !== "customer" && (
             <Link
-              to="/subscriptions/create"
+              to="/discounts/create"
               className="btn btn-primary"
             >
-              <PlusCircle size={16} /> New Subscription
+              <PlusCircle size={16} /> New Discount
             </Link>
           )}
         </div>
