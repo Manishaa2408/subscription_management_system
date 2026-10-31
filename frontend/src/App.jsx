@@ -21,6 +21,13 @@ import CreateSubscription from "./pages/subscriptions/CreateSubscription";
 import SubscriptionDetails from "./pages/subscriptions/SubscriptionDetails";
 import CustomerSubscriptions from "./pages/subscriptions/CustomerSubscriptions";
 
+// M8 - Discount Management
+import DiscountDashboard from "./pages/discounts/DiscountDashboard";
+import CreateDiscount from "./pages/discounts/CreateDiscount";
+import EditDiscount from "./pages/discounts/EditDiscount";
+import DiscountDetails from "./pages/discounts/DiscountDetails";
+import DiscountTester from "./pages/discounts/DiscountTester";
+
 export const App = () => {
   return (
     <div className="app-container">
@@ -28,7 +35,15 @@ export const App = () => {
       <main className="main-content">
         <Routes>
           {/* Default Route */}
-          <Route path="/" element={<Navigate to="/subscriptions" replace />} />
+          <Route path="/" element={<Navigate to="/discounts" replace />} />
+
+          {/* M8 Discount Management Routes */}
+          <Route path="/discounts" element={<DiscountDashboard />} />
+          <Route path="/discounts/create" element={<CreateDiscount />} />
+          <Route path="/discounts/:id" element={<DiscountDetails />} />
+          <Route path="/discounts/:id/edit" element={<EditDiscount />} />
+          <Route path="/discounts/tester" element={<DiscountTester />} />
+          <Route path="/admin/discounts" element={<DiscountDashboard />} />
 
           {/* M7 Subscription Lifecycle Routes */}
           <Route path="/subscriptions" element={<SubscriptionDashboard />} />
