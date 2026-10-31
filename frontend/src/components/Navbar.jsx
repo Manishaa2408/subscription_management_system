@@ -13,7 +13,7 @@ export const Navbar = () => {
       <div className="dev-banner">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <ShieldAlert size={15} color="#38bdf8" />
-          <span><strong>M5 Dev Auth Switcher:</strong> Active Role is <code>{role.toUpperCase()}</code></span>
+          <span><strong>Dev RBAC Switcher:</strong> Active Role is <code>{role.toUpperCase()}</code></span>
         </div>
         <div className="dev-role-selector">
           <span>Switch Test Role:</span>
@@ -29,14 +29,14 @@ export const Navbar = () => {
             className={`role-btn ${role === "staff" ? "active" : ""}`}
             onClick={() => changeRole("staff")}
           >
-            Staff (Read-Only)
+            Staff
           </button>
           <button
             type="button"
             className={`role-btn ${role === "customer" ? "active" : ""}`}
             onClick={() => changeRole("customer")}
           >
-            Customer (Blocked)
+            Customer (Portal Access)
           </button>
         </div>
       </div>
@@ -48,23 +48,43 @@ export const Navbar = () => {
             <Layers size={24} color="#1e40af" />
             <span>Brightloop Software</span>
           </Link>
-          <span className="brand-badge">M5 Templates</span>
+          <span className="brand-badge">M5 + M6</span>
         </div>
 
         <div className="nav-links">
+          {/* Quotations (M6) */}
           <Link
-            to="/templates"
-            className={`btn ${location.pathname === "/templates" ? "btn-primary" : "btn-outline"}`}
+            to="/quotations"
+            className={`btn ${location.pathname.startsWith("/quotations") ? "btn-primary" : "btn-outline"}`}
           >
-            <FileText size={16} /> Quotation Templates
+            <FileText size={16} /> Quotations
           </Link>
 
-          {isAdmin && (
+          {/* Customer Portal */}
+          <Link
+            to="/portal/quotations"
+            className={`btn ${location.pathname.startsWith("/portal") ? "btn-primary" : "btn-outline"}`}
+          >
+            Customer Portal
+          </Link>
+
+          {/* Quotation Templates (M5) */}
+          {!isAdmin && role === "customer" ? null : (
             <Link
-              to="/templates/create"
-              className={`btn ${location.pathname === "/templates/create" ? "btn-primary" : "btn-outline"}`}
+              to="/templates"
+              className={`btn ${location.pathname.startsWith("/templates") ? "btn-primary" : "btn-outline"}`}
             >
-              <PlusCircle size={16} /> New Template
+              Templates
+            </Link>
+          )}
+
+          {/* Create Button */}
+          {role !== "customer" && (
+            <Link
+              to="/quotations/create"
+              className="btn btn-primary"
+            >
+              <PlusCircle size={16} /> New Quotation
             </Link>
           )}
         </div>
