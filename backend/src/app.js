@@ -2,64 +2,66 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
+const unwrap = (mod) => (mod && mod.default ? mod.default : mod);
+
 // ── M1: Auth & Role Management ──────────────────────────────────────────────
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const authRoutes = unwrap(require('./routes/authRoutes'));
+const userRoutes = unwrap(require('./routes/userRoutes'));
 
 // ── M2: Customer Management & Portal ───────────────────────────────────────
-const customerRoutes = require('./modules/customers/routes/customerRoutes');
-const customerPortalRoutes = require('./modules/customers/routes/customerPortalRoutes');
+const customerRoutes = unwrap(require('./modules/customers/routes/customerRoutes'));
+const customerPortalRoutes = unwrap(require('./modules/customers/routes/customerPortalRoutes'));
 
 // ── M3: Product & Variant Management ───────────────────────────────────────
-const productRoutes = require('./modules/products/routes/productRoutes');
-const productCategoryRoutes = require('./modules/products/routes/productCategoryRoutes');
-const productVariantRoutes = require('./modules/products/routes/productVariantRoutes');
+const productRoutes = unwrap(require('./modules/products/routes/productRoutes'));
+const productCategoryRoutes = unwrap(require('./modules/products/routes/productCategoryRoutes'));
+const productVariantRoutes = unwrap(require('./modules/products/routes/productVariantRoutes'));
 
 // ── M4: Subscription Plan Management ───────────────────────────────────────
-const planRoutes = require('./modules/plans/routes/planRoutes');
+const planRoutes = unwrap(require('./modules/plans/routes/planRoutes'));
 
 // ── M5: Quotation Template Management ──────────────────────────────────────
-const quotationTemplateRoutes = require('./modules/quotationTemplates/routes/quotationTemplateRoutes');
+const quotationTemplateRoutes = unwrap(require('./modules/quotationTemplates/routes/quotationTemplateRoutes'));
 
 // ── M6: Quotation Management ────────────────────────────────────────────────
-const quotationRoutes = require('./modules/quotations/routes/quotationRoutes');
+const quotationRoutes = unwrap(require('./modules/quotations/routes/quotationRoutes'));
 
 // ── M7: Subscription Lifecycle Management ──────────────────────────────────
-const subscriptionRoutes = require('./modules/subscriptions/routes/subscriptionRoutes');
+const subscriptionRoutes = unwrap(require('./modules/subscriptions/routes/subscriptionRoutes'));
 
 // ── M8: Discount Management ─────────────────────────────────────────────────
-const discountCampaignRoutes = require('./modules/discounts/routes/discountCampaignRoutes');
-const discountRoutes = require('./modules/discounts/routes/discountRoutes');
+const discountCampaignRoutes = unwrap(require('./modules/discounts/routes/discountCampaignRoutes'));
+const discountRoutes = unwrap(require('./modules/discounts/routes/discountRoutes'));
 
 // ── M9: Recurring Billing Engine ────────────────────────────────────────────
 let billingRoutes, billingRunRoutes;
 try {
-  billingRoutes = require('./modules/billing/routes/billingRoutes');
-  billingRunRoutes = require('./modules/billing/routes/billingRunRoutes');
+  billingRoutes = unwrap(require('./modules/billing/routes/billingRoutes'));
+  billingRunRoutes = unwrap(require('./modules/billing/routes/billingRunRoutes'));
 } catch (e) { billingRoutes = null; billingRunRoutes = null; }
 
 // ── M10: Invoice & Tax Management ───────────────────────────────────────────
 let invoiceRoutes, taxRoutes;
 try {
-  invoiceRoutes = require('./modules/invoices/routes/invoiceRoutes');
-  taxRoutes = require('./modules/invoices/routes/taxRoutes');
+  invoiceRoutes = unwrap(require('./modules/invoices/routes/invoiceRoutes'));
+  taxRoutes = unwrap(require('./modules/invoices/routes/taxRoutes'));
 } catch (e) { invoiceRoutes = null; taxRoutes = null; }
 
 // ── M11: Payment & Reconciliation ───────────────────────────────────────────
 let paymentRoutes, reconciliationRoutes, receiptRoutes, refundRoutes;
 try {
-  paymentRoutes = require('./modules/payments/routes/paymentRoutes');
-  reconciliationRoutes = require('./modules/payments/routes/reconciliationRoutes');
-  receiptRoutes = require('./modules/payments/routes/receiptRoutes');
-  refundRoutes = require('./modules/payments/routes/refundRoutes');
+  paymentRoutes = unwrap(require('./modules/payments/routes/paymentRoutes'));
+  reconciliationRoutes = unwrap(require('./modules/payments/routes/reconciliationRoutes'));
+  receiptRoutes = unwrap(require('./modules/payments/routes/receiptRoutes'));
+  refundRoutes = unwrap(require('./modules/payments/routes/refundRoutes'));
 } catch (e) { paymentRoutes = null; reconciliationRoutes = null; receiptRoutes = null; refundRoutes = null; }
 
 // ── M12: Dashboard & Analytics ──────────────────────────────────────────────
 let analyticsRoutes, dashboardRoutes, reportRoutes;
 try {
-  analyticsRoutes = require('./modules/analytics/routes/analyticsRoutes');
-  dashboardRoutes = require('./modules/analytics/routes/dashboardRoutes');
-  reportRoutes = require('./modules/analytics/routes/reportRoutes');
+  analyticsRoutes = unwrap(require('./modules/analytics/routes/analyticsRoutes'));
+  dashboardRoutes = unwrap(require('./modules/analytics/routes/dashboardRoutes'));
+  reportRoutes = unwrap(require('./modules/analytics/routes/reportRoutes'));
 } catch (e) { analyticsRoutes = null; dashboardRoutes = null; reportRoutes = null; }
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
@@ -95,33 +97,33 @@ app.get('/api/health', (req, res) => {
 // ── Mount Routes ──────────────────────────────────────────────────────────────
 
 // M1
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+if (authRoutes) app.use('/api/auth', authRoutes);
+if (userRoutes) app.use('/api/users', userRoutes);
 
 // M2
-app.use('/api/customers', customerRoutes);
-app.use('/api/customer-portal', customerPortalRoutes);
+if (customerRoutes) app.use('/api/customers', customerRoutes);
+if (customerPortalRoutes) app.use('/api/customer-portal', customerPortalRoutes);
 
 // M3
-app.use('/api/products', productRoutes);
-app.use('/api/product-categories', productCategoryRoutes);
-app.use('/api/products/:productId/variants', productVariantRoutes);
+if (productRoutes) app.use('/api/products', productRoutes);
+if (productCategoryRoutes) app.use('/api/product-categories', productCategoryRoutes);
+if (productVariantRoutes) app.use('/api/products/:productId/variants', productVariantRoutes);
 
 // M4
-app.use('/api/plans', planRoutes);
+if (planRoutes) app.use('/api/plans', planRoutes);
 
 // M5
-app.use('/api/quotation-templates', quotationTemplateRoutes);
+if (quotationTemplateRoutes) app.use('/api/quotation-templates', quotationTemplateRoutes);
 
 // M6
-app.use('/api/quotations', quotationRoutes);
+if (quotationRoutes) app.use('/api/quotations', quotationRoutes);
 
 // M7
-app.use('/api/subscriptions', subscriptionRoutes);
+if (subscriptionRoutes) app.use('/api/subscriptions', subscriptionRoutes);
 
 // M8
-app.use('/api/discount-campaigns', discountCampaignRoutes);
-app.use('/api/discounts', discountRoutes);
+if (discountCampaignRoutes) app.use('/api/discount-campaigns', discountCampaignRoutes);
+if (discountRoutes) app.use('/api/discounts', discountRoutes);
 
 // M9
 if (billingRunRoutes) app.use('/api/billing/runs', billingRunRoutes);
