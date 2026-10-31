@@ -1,10 +1,19 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+
+// M5 - Quotation Templates
 import TemplateList from "./pages/quotationTemplates/TemplateList";
 import CreateTemplate from "./pages/quotationTemplates/CreateTemplate";
 import EditTemplate from "./pages/quotationTemplates/EditTemplate";
 import TemplateDetails from "./pages/quotationTemplates/TemplateDetails";
+
+// M6 - Quotation Management
+import QuotationDashboard from "./pages/quotations/QuotationDashboard";
+import CreateQuotation from "./pages/quotations/CreateQuotation";
+import EditQuotation from "./pages/quotations/EditQuotation";
+import QuotationDetails from "./pages/quotations/QuotationDetails";
+import CustomerPortal from "./pages/quotations/CustomerPortal";
 
 export const App = () => {
   return (
@@ -13,26 +22,27 @@ export const App = () => {
       <main className="main-content">
         <Routes>
           {/* Default Route */}
-          <Route path="/" element={<Navigate to="/templates" replace />} />
+          <Route path="/" element={<Navigate to="/quotations" replace />} />
 
-          {/* Standard M5 Template Routes */}
+          {/* M6 Quotation Management Routes */}
+          <Route path="/quotations" element={<QuotationDashboard />} />
+          <Route path="/quotations/create" element={<CreateQuotation />} />
+          <Route path="/quotations/:id" element={<QuotationDetails />} />
+          <Route path="/quotations/:id/edit" element={<EditQuotation />} />
+          <Route path="/portal/quotations" element={<CustomerPortal />} />
+
+          {/* M5 Quotation Template Routes */}
           <Route path="/templates" element={<TemplateList />} />
           <Route path="/templates/create" element={<CreateTemplate />} />
           <Route path="/templates/:id" element={<TemplateDetails />} />
           <Route path="/templates/:id/edit" element={<EditTemplate />} />
 
-          {/* Admin Path Aliases */}
+          {/* Path Aliases */}
           <Route path="/admin/quotation-templates" element={<TemplateList />} />
-          <Route path="/admin/quotation-templates/create" element={<CreateTemplate />} />
-          <Route path="/admin/quotation-templates/:id" element={<TemplateDetails />} />
-          <Route path="/admin/quotation-templates/:id/edit" element={<EditTemplate />} />
-
-          {/* Staff Path Aliases */}
-          <Route path="/staff/quotation-templates" element={<TemplateList />} />
-          <Route path="/staff/quotation-templates/:id" element={<TemplateDetails />} />
+          <Route path="/admin/quotations" element={<QuotationDashboard />} />
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/templates" replace />} />
+          <Route path="*" element={<Navigate to="/quotations" replace />} />
         </Routes>
       </main>
     </div>
