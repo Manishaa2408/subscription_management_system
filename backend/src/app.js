@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import quotationTemplateRoutes from "./modules/quotationTemplates/routes/quotationTemplateRoutes.js";
+import quotationRoutes from "./modules/quotations/routes/quotationRoutes.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
@@ -15,13 +16,16 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Brightloop SMS API is running",
-    module: "M5 - Quotation Template Management",
+    modules: ["M5 - Quotation Templates", "M6 - Quotation Management"],
     environment: process.env.NODE_ENV || "development"
   });
 });
 
-// Quotation Template Routes
+// Quotation Template Routes (M5)
 app.use("/api/quotation-templates", quotationTemplateRoutes);
+
+// Quotation Management Routes (M6)
+app.use("/api/quotations", quotationRoutes);
 
 // 404 & Centralized Error Handler
 app.use(notFoundHandler);
