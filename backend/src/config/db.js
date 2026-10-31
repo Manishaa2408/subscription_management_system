@@ -4,7 +4,7 @@ let mongodInstance = null;
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
-    return;
+    return mongoose.connection;
   }
 
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/brightloop_sms';
@@ -14,6 +14,7 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 3000
     });
     console.log(`[Database] MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
+    return conn;
   } catch (err) {
     console.warn(`[Database] Standard MongoDB connection failed: ${err.message}`);
 
@@ -25,6 +26,7 @@ const connectDB = async () => {
       const memoryUri = mongodInstance.getUri();
       const conn = await mongoose.connect(memoryUri);
       console.log(`[Database] In-memory MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
+      return conn;
     } catch (fallbackErr) {
       console.error('[Database] Fallback in-memory MongoDB failed:', fallbackErr.message);
       process.exit(1);
@@ -33,10 +35,20 @@ const connectDB = async () => {
 };
 
 const disconnectDB = async () => {
-  await mongoose.disconnect();
-  if (mongodInstance) {
-    await mongodInstance.stop();
+  try {
+    await mongoose.disconnect();
+    if (mongodInstance) {
+      await mongodInstance.stop();
+    }
+  } catch (err) {
+    console.error(`Error closing DB: ${err.message}`);
   }
 };
 
-module.exports = { connectDB, disconnectDB };
+const closeDB = disconnectDB;
+
+module.exports = connectDB;
+module.exports.default = connectDB;
+module.exports.connectDB = connectDB;
+module.exports.disconnectDB = disconnectDB;
+module.exports.closeDB = closeDB;
