@@ -9,6 +9,7 @@
     "seed:m9": "node src/modules/billing/seeds/billingSeed.js",
     "seed:m10": "node src/modules/invoices/seeds/seed.js",
     "seed:m11": "node src/modules/payments/seeds/paymentSeed.js",
+    "seed:m12": "node src/modules/analytics/seeds/analyticsSeed.js",
     "test": "jest --detectOpenHandles --forceExit"
   },
   "dependencies": {

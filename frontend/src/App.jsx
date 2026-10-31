@@ -30,6 +30,13 @@ import CustomerPaymentHistory from './modules/payments/pages/CustomerPaymentHist
 import ReconciliationDashboard from './modules/reconciliation/pages/ReconciliationDashboard';
 import RefundList from './modules/refunds/pages/RefundList';
 
+// ── M12 – Dashboard & Analytics ──
+import AdminDashboard from './modules/analytics/pages/AdminDashboard';
+import RevenueAnalytics from './modules/analytics/pages/RevenueAnalytics';
+import CustomerAnalytics from './modules/analytics/pages/CustomerAnalytics';
+import SubscriptionAnalytics from './modules/analytics/pages/SubscriptionAnalytics';
+import ProductAnalytics from './modules/analytics/pages/ProductAnalytics';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -39,7 +46,14 @@ export default function App() {
           <main className="flex-1">
             <Routes>
               {/* Default Redirect */}
-              <Route path="/" element={<Navigate to="/admin/billing" replace />} />
+              <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+
+              {/* ── M12: Dashboard & Analytics ── */}
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/analytics/revenue" element={<RevenueAnalytics />} />
+              <Route path="/admin/analytics/customers" element={<CustomerAnalytics />} />
+              <Route path="/admin/analytics/subscriptions" element={<SubscriptionAnalytics />} />
+              <Route path="/admin/analytics/products" element={<ProductAnalytics />} />
 
               {/* ── M9: Recurring Billing & Invoice Generation Engine ── */}
               <Route path="/admin/billing" element={<BillingDashboard />} />
@@ -71,7 +85,7 @@ export default function App() {
               <Route path="/customer/payments/:id" element={<PaymentDetails />} />
 
               {/* 404 Catch-All */}
-              <Route path="*" element={<Navigate to="/admin/billing" replace />} />
+              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
             </Routes>
           </main>
         </div>
