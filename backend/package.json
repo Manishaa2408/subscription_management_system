@@ -1,21 +1,34 @@
 {
-  "name": "subscription-management-backend",
+  "name": "brightloop-subscription-management-backend",
   "version": "1.0.0",
-  "description": "Brightloop Subscription Management System - Backend",
+  "description": "Brightloop Software - Subscription Management System Backend (Modules 1-12 Integrated)",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "seed": "node scripts/seedAdmin.js && node scripts/seedDevelopmentCatalog.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "seed:catalog": "node scripts/seedDevelopmentCatalog.js",
+    "seed:m6": "node scripts/seedQuotations.js",
+    "seed:m7": "node scripts/seedSubscriptions.js",
+    "seed:m8": "node scripts/seedDiscounts.js",
     "seed:m9": "node src/modules/billing/seeds/billingSeed.js",
     "seed:m10": "node src/modules/invoices/seeds/seed.js",
     "seed:m11": "node src/modules/payments/seeds/paymentSeed.js",
     "seed:m12": "node src/modules/analytics/seeds/analyticsSeed.js",
-    "test": "jest --detectOpenHandles --forceExit"
+    "seed:all": "node scripts/seedAdmin.js && node scripts/seedDevelopmentCatalog.js && node scripts/seedQuotations.js && node scripts/seedSubscriptions.js && node scripts/seedDiscounts.js && node src/modules/billing/seeds/billingSeed.js && node src/modules/invoices/seeds/seed.js && node src/modules/payments/seeds/paymentSeed.js && node src/modules/analytics/seeds/analyticsSeed.js",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:m6": "node scripts/runM6Tests.js",
+    "test:m7": "node scripts/runM7Tests.js",
+    "test:m8": "node scripts/runM8Tests.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-validator": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
@@ -23,6 +36,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0"
   },
