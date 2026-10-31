@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FileText, PlusCircle, Percent, UserCheck, Shield, Users, CreditCard, RefreshCw, RotateCcw, Zap, Calendar } from 'lucide-react';
+import { FileText, PlusCircle, Percent, UserCheck, Shield, Users, CreditCard, RefreshCw, RotateCcw, Zap, Calendar, LayoutDashboard, BarChart3 } from 'lucide-react';
 
 export const Navbar = () => {
   const { currentUser, switchUser, PRESET_USERS } = useAuth();
@@ -21,10 +21,10 @@ export const Navbar = () => {
       <div className="bg-slate-900 text-white text-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800">
         <div className="flex items-center gap-2">
           <span className="bg-blue-600 font-bold px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">
-            M9 + M10 + M11
+            M9 + M10 + M11 + M12
           </span>
           <span className="text-slate-300">
-            Recurring Billing, Invoicing &amp; Payment Engine | Developer 3
+            Billing, Invoicing, Payments, Reconciliation &amp; Analytics | Developer 3
           </span>
         </div>
 
@@ -61,7 +61,7 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
-            <Link to="/admin/billing" className="flex items-center gap-2.5 group">
+            <Link to="/admin/dashboard" className="flex items-center gap-2.5 group">
               <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20 group-hover:bg-blue-700 transition">
                 BL
               </div>
@@ -75,6 +75,31 @@ export const Navbar = () => {
               {/* Admin/Staff Navigation */}
               {(isAdmin || isStaff) && (
                 <>
+                  {/* M12 – Dashboard & Analytics */}
+                  <Link
+                    to="/admin/dashboard"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/dashboard')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-blue-600" />
+                    Dashboard
+                  </Link>
+
+                  <Link
+                    to="/admin/analytics/revenue"
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                      isActive('/admin/analytics')
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <BarChart3 className="w-4 h-4 text-indigo-600" />
+                    Analytics
+                  </Link>
+
                   {/* M9 – Recurring Billing Engine */}
                   <Link
                     to="/admin/billing"

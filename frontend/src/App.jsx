@@ -78,6 +78,7 @@ import { InvoiceDetails } from './modules/invoices/pages/InvoiceDetails';
 import { CreateInvoice } from './modules/invoices/pages/CreateInvoice';
 import { EditInvoice } from './modules/invoices/pages/EditInvoice';
 import { InvoicePrintView } from './modules/invoices/pages/InvoicePrintView';
+import { TaxConfigurationList } from './modules/tax/pages/TaxConfigurationList';
 
 // ── M11: Payment & Reconciliation ────────────────────────────────────────────
 import PaymentList from './modules/payments/pages/PaymentList';
@@ -85,12 +86,15 @@ import RecordPayment from './modules/payments/pages/RecordPayment';
 import PaymentDetails from './modules/payments/pages/PaymentDetails';
 import PaymentReceipt from './modules/payments/pages/PaymentReceipt';
 import CustomerPaymentHistory from './modules/payments/pages/CustomerPaymentHistory';
+import ReconciliationDashboard from './modules/reconciliation/pages/ReconciliationDashboard';
+import RefundList from './modules/refunds/pages/RefundList';
 
 // ── M12: Dashboard & Analytics ───────────────────────────────────────────────
-let AnalyticsDashboard = null;
-try {
-  AnalyticsDashboard = require('./modules/analytics/pages/AnalyticsDashboard').default;
-} catch (e) { /* optional */ }
+import AnalyticsDashboard from './modules/analytics/pages/AdminDashboard';
+import RevenueAnalytics from './modules/analytics/pages/RevenueAnalytics';
+import CustomerAnalytics from './modules/analytics/pages/CustomerAnalytics';
+import SubscriptionAnalytics from './modules/analytics/pages/SubscriptionAnalytics';
+import ProductAnalytics from './modules/analytics/pages/ProductAnalytics';
 
 // ── Smart Root Redirect ──────────────────────────────────────────────────────
 const RootRedirect = () => {
@@ -185,6 +189,7 @@ function App() {
           <Route path="/admin/invoices/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><CreateInvoice /></ProtectedRoute>} />
           <Route path="/admin/invoices/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><InvoiceDetails /></ProtectedRoute>} />
           <Route path="/admin/invoices/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><EditInvoice /></ProtectedRoute>} />
+          <Route path="/admin/tax-configurations" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><TaxConfigurationList /></ProtectedRoute>} />
           <Route path="/invoices/:id/print" element={<ProtectedRoute allowedRoles={['admin', 'staff', 'customer']}><InvoicePrintView /></ProtectedRoute>} />
 
           {/* ── M11: Payment & Reconciliation ───────────────────────── */}
@@ -192,13 +197,17 @@ function App() {
           <Route path="/admin/payments/create" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><RecordPayment /></ProtectedRoute>} />
           <Route path="/admin/payments/receipt/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff', 'customer']}><PaymentReceipt /></ProtectedRoute>} />
           <Route path="/admin/payments/:id" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><PaymentDetails /></ProtectedRoute>} />
+          <Route path="/admin/reconciliation" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><ReconciliationDashboard /></ProtectedRoute>} />
+          <Route path="/admin/refunds" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><RefundList /></ProtectedRoute>} />
           <Route path="/customer/payments/history" element={<ProtectedRoute allowedRoles={['customer']}><CustomerPaymentHistory /></ProtectedRoute>} />
           <Route path="/customer/payments/:id" element={<ProtectedRoute allowedRoles={['customer']}><PaymentDetails /></ProtectedRoute>} />
 
-          {/* ── M12: Analytics (if available) ───────────────────────── */}
-          {AnalyticsDashboard && (
-            <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><AnalyticsDashboard /></ProtectedRoute>} />
-          )}
+          {/* ── M12: Analytics ──────────────────────────────────────── */}
+          <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><AnalyticsDashboard /></ProtectedRoute>} />
+          <Route path="/admin/analytics/revenue" element={<ProtectedRoute allowedRoles={['admin']}><RevenueAnalytics /></ProtectedRoute>} />
+          <Route path="/admin/analytics/customers" element={<ProtectedRoute allowedRoles={['admin']}><CustomerAnalytics /></ProtectedRoute>} />
+          <Route path="/admin/analytics/subscriptions" element={<ProtectedRoute allowedRoles={['admin']}><SubscriptionAnalytics /></ProtectedRoute>} />
+          <Route path="/admin/analytics/products" element={<ProtectedRoute allowedRoles={['admin']}><ProductAnalytics /></ProtectedRoute>} />
 
           {/* ── M1: Staff & Customer Portals ────────────────────────── */}
           <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['staff', 'admin']}><StaffDashboard /></ProtectedRoute>} />

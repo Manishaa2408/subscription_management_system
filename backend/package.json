@@ -13,6 +13,7 @@
     "seed:m9": "node src/modules/billing/seeds/billingSeed.js",
     "seed:m10": "node src/modules/invoices/seeds/seed.js",
     "seed:m11": "node src/modules/payments/seeds/paymentSeed.js",
+    "seed:m12": "node src/modules/analytics/seeds/analyticsSeed.js",
     "test:m1": "node tests/m1_test.js",
     "test:m2": "node tests/m2_test.js",
     "test:m5": "node scripts/runM5Tests.js",

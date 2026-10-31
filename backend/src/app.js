@@ -38,12 +38,15 @@ try {
   billingRunRoutes = require('./modules/billing/routes/billingRunRoutes');
 } catch (e) { billingRoutes = null; billingRunRoutes = null; }
 
-// ── M10 & M11: Invoices, Taxes, Payments & Reconciliation ───────────────────
-let invoiceRoutes, taxRoutes, paymentRoutes, reconciliationRoutes, receiptRoutes, refundRoutes;
+// ── M10: Invoice & Tax Management ───────────────────────────────────────────
+let invoiceRoutes, taxRoutes;
 try {
   invoiceRoutes = require('./modules/invoices/routes/invoiceRoutes');
   taxRoutes = require('./modules/invoices/routes/taxRoutes');
 } catch (e) { invoiceRoutes = null; taxRoutes = null; }
+
+// ── M11: Payment & Reconciliation ───────────────────────────────────────────
+let paymentRoutes, reconciliationRoutes, receiptRoutes, refundRoutes;
 try {
   paymentRoutes = require('./modules/payments/routes/paymentRoutes');
   reconciliationRoutes = require('./modules/payments/routes/reconciliationRoutes');
@@ -52,10 +55,12 @@ try {
 } catch (e) { paymentRoutes = null; reconciliationRoutes = null; receiptRoutes = null; refundRoutes = null; }
 
 // ── M12: Dashboard & Analytics ──────────────────────────────────────────────
-let analyticsRoutes;
+let analyticsRoutes, dashboardRoutes, reportRoutes;
 try {
   analyticsRoutes = require('./modules/analytics/routes/analyticsRoutes');
-} catch (e) { analyticsRoutes = null; }
+  dashboardRoutes = require('./modules/analytics/routes/dashboardRoutes');
+  reportRoutes = require('./modules/analytics/routes/reportRoutes');
+} catch (e) { analyticsRoutes = null; dashboardRoutes = null; reportRoutes = null; }
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -134,6 +139,8 @@ if (refundRoutes) app.use('/api/refunds', refundRoutes);
 
 // M12
 if (analyticsRoutes) app.use('/api/analytics', analyticsRoutes);
+if (dashboardRoutes) app.use('/api/dashboard', dashboardRoutes);
+if (reportRoutes) app.use('/api/reports', reportRoutes);
 
 // ── 404 & Error Handler ───────────────────────────────────────────────────────
 app.use(notFound);
