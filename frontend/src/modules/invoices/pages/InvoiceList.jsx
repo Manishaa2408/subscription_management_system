@@ -230,7 +230,7 @@ export const InvoiceList = () => {
         {loading ? (
           <div className="p-12 text-center text-slate-500">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" />
-            Loading invoices from MongoDB...
+            Loading invoices...
           </div>
         ) : invoices.length === 0 ? (
           <div className="p-12 text-center text-slate-500">

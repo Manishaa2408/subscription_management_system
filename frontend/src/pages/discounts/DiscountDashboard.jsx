@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Tag, 
   Plus, 
@@ -14,14 +14,22 @@ import {
   Eye,
   Edit,
   TrendingDown,
-  Layers
+  Layers,
+  RotateCcw,
+  Percent,
+  Power
 } from "lucide-react";
 import discountService from "../../services/discountService";
 import DiscountStatusBadge from "../../components/discounts/DiscountStatusBadge";
 import CampaignModal from "../../components/discounts/CampaignModal";
 import { useAuth } from "../../context/AuthContext";
+import { PageHeader } from "../../components/common/PageHeader";
+import { StatCard } from "../../components/common/StatCard";
+import { LoadingState } from "../../components/common/LoadingState";
+import { EmptyState } from "../../components/common/EmptyState";
 
 export const DiscountDashboard = () => {
+  const navigate = useNavigate();
   const { role, isAdmin } = useAuth();
   const [discounts, setDiscounts] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
@@ -86,7 +94,6 @@ export const DiscountDashboard = () => {
     }
   };
 
-  // Filter discounts client-side for ultra-fast response
   const filteredDiscounts = discounts.filter((d) => {
     const matchesStatus = statusFilter === "all" || d.status === statusFilter;
     const matchesType = typeFilter === "all" || d.discountType === typeFilter;
@@ -100,327 +107,262 @@ export const DiscountDashboard = () => {
   });
 
   return (
-    <div className="page-container" style={{ maxWidth: "1280px", margin: "0 auto", padding: "24px" }}>
-      {/* Top Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
-        <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>
-            Discount & Campaign Management
-          </h1>
-          <p style={{ color: "#64748b", margin: "4px 0 0 0", fontSize: "0.9rem" }}>
-            Create promotional coupons, percentage/fixed discounts, eligibility restrictions, and track redemptions.
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <PageHeader
+        title="Discounts & Coupons"
+        subtitle="Create promotional coupon codes, percentage/fixed discounts, eligibility restrictions, and track redemptions."
+        action={
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={fetchData}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold transition shadow-xs"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+            </button>
 
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <button
-            type="button"
-            className="btn btn-outline"
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
-            onClick={fetchData}
-            disabled={loading}
-          >
-            <RefreshCw size={15} className={loading ? "spin" : ""} /> Refresh
-          </button>
+            <Link
+              to="/discounts/tester"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 rounded-xl text-xs font-semibold transition shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Coupon Tester
+            </Link>
 
-          <Link
-            to="/discounts/tester"
-            className="btn btn-outline"
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
-          >
-            <Sparkles size={15} color="#2563eb" /> Coupon Tester
-          </Link>
+            {isAdmin && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsCampaignModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 rounded-xl text-xs font-semibold transition"
+                >
+                  <Megaphone className="w-3.5 h-3.5" /> New Campaign
+                </button>
 
-          {isAdmin && (
-            <>
-              <button
-                type="button"
-                className="btn btn-outline"
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-                onClick={() => setIsCampaignModalOpen(true)}
-              >
-                <Megaphone size={15} color="#7c3aed" /> New Campaign
-              </button>
-
-              <Link
-                to="/discounts/create"
-                className="btn btn-primary"
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <Plus size={16} /> New Discount
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
+                <Link
+                  to="/discounts/create"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+                >
+                  <Plus className="w-4 h-4" /> New Discount
+                </Link>
+              </>
+            )}
+          </div>
+        }
+      />
 
       {notification && (
-        <div className={`alert ${notification.type === "success" ? "alert-success" : "alert-error"}`} style={{ marginBottom: "16px" }}>
+        <div className={`p-4 rounded-xl text-sm font-medium ${notification.type === "success" ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-rose-50 text-rose-800 border border-rose-200"}`}>
           {notification.text}
         </div>
       )}
 
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && (
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl">
+          {error}
+        </div>
+      )}
 
       {/* Metrics Row */}
       {metrics && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#64748b", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Total Discounts</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", marginTop: "4px" }}>
-              {metrics.totalDiscounts || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>Configured coupons</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #86efac", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#15803d", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Active Coupons</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#15803d", marginTop: "4px" }}>
-              {metrics.activeDiscounts || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#16a34a", marginTop: "4px" }}>Available for checkout</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #fde68a", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#b45309", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Inactive / Expired</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#b45309", marginTop: "4px" }}>
-              {(metrics.inactiveDiscounts || 0) + (metrics.expiredDiscounts || 0)}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#d97706", marginTop: "4px" }}>Paused or lapsed</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #c7d2fe", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#4338ca", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Total Redemptions</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#4338ca", marginTop: "4px" }}>
-              {metrics.totalRedemptions || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#6366f1", marginTop: "4px" }}>Confirmed usages</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#0f172a", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Customer Savings</div>
-            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#2563eb", marginTop: "4px" }}>
-              ₹{(metrics.totalAmountSaved || 0).toLocaleString()}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>Total value redeemed</div>
-          </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Total Discounts"
+            value={metrics.totalDiscounts || 0}
+            icon={Tag}
+            color="blue"
+          />
+          <StatCard
+            label="Active Coupons"
+            value={metrics.activeDiscounts || 0}
+            icon={CheckCircle2}
+            color="emerald"
+          />
+          <StatCard
+            label="Inactive / Expired"
+            value={(metrics.inactiveDiscounts || 0) + (metrics.expiredDiscounts || 0)}
+            icon={Clock}
+            color="amber"
+          />
+          <StatCard
+            label="Redemptions"
+            value={metrics.totalRedemptions || 0}
+            icon={Sparkles}
+            color="indigo"
+          />
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "20px", display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: "240px" }}>
-          <div style={{ position: "relative", width: "100%" }}>
-            <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "11px" }} />
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by discount code, name, or description..."
-              style={{ paddingLeft: "36px" }}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            placeholder="Search by code, coupon name, or details..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-          {/* Status filter */}
-          <select
-            className="form-control"
-            style={{ width: "auto" }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="expired">Expired</option>
-            <option value="archived">Archived</option>
-          </select>
+        <div className="flex items-center gap-3 w-full md:w-auto flex-wrap">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select
+              className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-700"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="expired">Expired</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
 
-          {/* Type filter */}
           <select
-            className="form-control"
-            style={{ width: "auto" }}
+            className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-700"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
             <option value="all">All Types</option>
             <option value="percentage">Percentage (%)</option>
-            <option value="fixed">Fixed Amount (₹)</option>
+            <option value="fixed_amount">Fixed Amount (₹)</option>
           </select>
 
-          {/* Campaign filter */}
-          <select
-            className="form-control"
-            style={{ width: "auto" }}
-            value={campaignFilter}
-            onChange={(e) => setCampaignFilter(e.target.value)}
-          >
-            <option value="all">All Campaigns</option>
-            {campaigns.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          {campaigns.length > 0 && (
+            <select
+              className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-700"
+              value={campaignFilter}
+              onChange={(e) => setCampaignFilter(e.target.value)}
+            >
+              <option value="all">All Campaigns</option>
+              {campaigns.map((c) => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
+          )}
+
+          {(search || statusFilter !== "all" || typeFilter !== "all" || campaignFilter !== "all") && (
+            <button
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
+                setTypeFilter("all");
+                setCampaignFilter("all");
+              }}
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Reset
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Discounts Table */}
-      <div style={{ background: "#ffffff", borderRadius: "10px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+      {/* Discounts Table Card */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
         {loading ? (
-          <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
-            <RefreshCw size={24} className="spin" style={{ margin: "0 auto 12px auto" }} />
-            <p>Loading discounts...</p>
-          </div>
+          <LoadingState message="Loading discounts..." />
         ) : filteredDiscounts.length === 0 ? (
-          <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
-            <Tag size={28} color="#94a3b8" style={{ margin: "0 auto 12px auto" }} />
-            <p style={{ fontWeight: 500, fontSize: "1rem" }}>No discounts found matching your filters.</p>
-            <span style={{ fontSize: "0.85rem" }}>
-              Try adjusting your search criteria or create a new coupon.
-            </span>
-          </div>
+          <EmptyState
+            title="No discounts found"
+            description="No promotional coupons match your current filter settings."
+            actionText={isAdmin ? "Create Discount" : undefined}
+            onAction={isAdmin ? () => navigate("/discounts/create") : undefined}
+          />
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="items-table" style={{ width: "100%", margin: 0 }}>
-              <thead>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 <tr>
-                  <th>Code</th>
-                  <th>Discount Name</th>
-                  <th>Rule / Value</th>
-                  <th>Min Order</th>
-                  <th>Campaign</th>
-                  <th>Usage / Cap</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                  <th className="px-5 py-3.5">Coupon Code</th>
+                  <th className="px-5 py-3.5">Name</th>
+                  <th className="px-5 py-3.5">Benefit</th>
+                  <th className="px-5 py-3.5">Campaign</th>
+                  <th className="px-5 py-3.5 text-center">Usage</th>
+                  <th className="px-5 py-3.5 text-center">Status</th>
+                  <th className="px-5 py-3.5">Validity</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {filteredDiscounts.map((d) => (
-                  <tr key={d._id}>
-                    <td>
-                      <Link
-                        to={`/discounts/${d._id}`}
-                        style={{
-                          fontWeight: 700,
-                          color: "#2563eb",
-                          fontFamily: "monospace",
-                          fontSize: "0.95rem",
-                          letterSpacing: "0.04em"
-                        }}
-                      >
+                  <tr key={d._id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-5 py-4">
+                      <span className="font-mono font-semibold text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg">
                         {d.code}
-                      </Link>
-                      <div style={{ fontSize: "0.7rem", color: "#64748b", textTransform: "capitalize" }}>
-                        {d.applicationType === "recurring" ? `Recurring (${d.billingCycles}x)` : "One-Time"}
-                      </div>
+                      </span>
                     </td>
 
-                    <td>
-                      <strong>{d.name}</strong>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-slate-900">{d.name}</div>
                       {d.description && (
-                        <div style={{ fontSize: "0.75rem", color: "#64748b", maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {d.description}
-                        </div>
+                        <div className="text-xs text-slate-400 max-w-xs truncate mt-0.5">{d.description}</div>
                       )}
                     </td>
 
-                    <td>
-                      <strong style={{ color: "#15803d" }}>
-                        {d.discountType === "percentage"
-                          ? `${d.discountValue}% Off`
-                          : `₹${d.discountValue?.toLocaleString()} Flat`}
-                      </strong>
-                      {d.maximumDiscount != null && d.maximumDiscount > 0 && (
-                        <div style={{ fontSize: "0.7rem", color: "#64748b" }}>
-                          Max cap: ₹{d.maximumDiscount.toLocaleString()}
-                        </div>
-                      )}
-                    </td>
-
-                    <td>
-                      {d.minimumPurchase > 0 ? (
-                        <span>₹{d.minimumPurchase.toLocaleString()}</span>
+                    <td className="px-5 py-4 font-semibold text-slate-800">
+                      {d.discountType === "percentage" ? (
+                        <span className="text-blue-600 font-bold">{d.value}% OFF</span>
                       ) : (
-                        <span style={{ color: "#94a3b8" }}>None</span>
+                        <span className="text-emerald-600 font-bold">₹{d.value} OFF</span>
                       )}
                     </td>
 
-                    <td>
-                      {d.campaignId ? (
-                        <span style={{ fontSize: "0.8rem", color: "#475569" }}>
-                          {d.campaignId.name || d.campaignId.campaignCode}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#94a3b8", fontSize: "0.8rem" }}>Standalone</span>
-                      )}
+                    <td className="px-5 py-4 text-xs text-slate-600">
+                      {d.campaignId?.name || "General"}
                     </td>
 
-                    <td>
-                      <div style={{ fontWeight: 600 }}>
-                        {d.usageCount || 0}
-                        {d.usageLimits?.maximumTotalUsage ? ` / ${d.usageLimits.maximumTotalUsage}` : " (unlimited)"}
-                      </div>
-                      {d.usageLimits?.maximumPerCustomer && (
-                        <div style={{ fontSize: "0.7rem", color: "#64748b" }}>
-                          Max {d.usageLimits.maximumPerCustomer}/customer
-                        </div>
-                      )}
+                    <td className="px-5 py-4 text-center text-xs font-medium text-slate-700">
+                      {d.currentRedemptions || 0} {d.maxRedemptions ? `/ ${d.maxRedemptions}` : "used"}
                     </td>
 
-                    <td>
+                    <td className="px-5 py-4 text-center">
                       <DiscountStatusBadge status={d.status} />
                     </td>
 
-                    <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "6px" }}>
+                    <td className="px-5 py-4 text-xs text-slate-500">
+                      {d.validUntil ? new Date(d.validUntil).toLocaleDateString() : "No expiry"}
+                    </td>
+
+                    <td className="px-5 py-4 text-right">
+                      <div className="inline-flex items-center gap-1.5">
                         <Link
                           to={`/discounts/${d._id}`}
-                          className="btn btn-outline"
-                          style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                           title="View Details"
                         >
-                          <Eye size={13} />
+                          <Eye className="w-4 h-4" />
                         </Link>
 
                         {isAdmin && (
                           <>
                             <Link
                               to={`/discounts/${d._id}/edit`}
-                              className="btn btn-outline"
-                              style={{ padding: "4px 8px", fontSize: "0.75rem" }}
-                              title="Edit"
+                              className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                              title="Edit Discount"
                             >
-                              <Edit size={13} />
+                              <Edit className="w-4 h-4" />
                             </Link>
 
                             <button
-                              type="button"
-                              className="btn btn-outline"
-                              style={{
-                                padding: "4px 8px",
-                                fontSize: "0.75rem",
-                                color: d.status === "active" ? "#b45309" : "#15803d"
-                              }}
                               onClick={() => handleStatusToggle(d)}
+                              className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
                               title={d.status === "active" ? "Deactivate" : "Activate"}
                             >
-                              {d.status === "active" ? "Pause" : "Enable"}
+                              <Power className="w-4 h-4" />
                             </button>
 
-                            {d.status !== "archived" && (
-                              <button
-                                type="button"
-                                className="btn btn-outline"
-                                style={{ padding: "4px 8px", fontSize: "0.75rem", color: "#64748b" }}
-                                onClick={() => handleArchive(d)}
-                                title="Archive"
-                              >
-                                <Archive size={13} />
-                              </button>
-                            )}
+                            <button
+                              onClick={() => handleArchive(d)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                              title="Archive Discount"
+                            >
+                              <Archive className="w-4 h-4" />
+                            </button>
                           </>
                         )}
                       </div>
@@ -433,15 +375,17 @@ export const DiscountDashboard = () => {
         )}
       </div>
 
-      {/* Campaign Creation Modal */}
-      <CampaignModal
-        isOpen={isCampaignModalOpen}
-        onClose={() => setIsCampaignModalOpen(false)}
-        onSuccess={(msg) => {
-          setNotification({ type: "success", text: msg });
-          fetchData();
-        }}
-      />
+      {/* Campaign Modal */}
+      {isCampaignModalOpen && (
+        <CampaignModal
+          isOpen={isCampaignModalOpen}
+          onClose={() => setIsCampaignModalOpen(false)}
+          onSuccess={() => {
+            setIsCampaignModalOpen(false);
+            fetchData();
+          }}
+        />
+      )}
     </div>
   );
 };

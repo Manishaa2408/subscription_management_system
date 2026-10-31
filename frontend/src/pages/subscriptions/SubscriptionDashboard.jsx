@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Plus, 
   Search, 
@@ -13,13 +13,18 @@ import {
   TrendingUp, 
   ArrowUpRight,
   Eye,
-  SlidersHorizontal
+  RotateCcw
 } from "lucide-react";
 import subscriptionService from "../../services/subscriptionService";
 import SubscriptionStatusBadge from "../../components/subscriptions/SubscriptionStatusBadge";
 import { useAuth } from "../../context/AuthContext";
+import { PageHeader } from "../../components/common/PageHeader";
+import { StatCard } from "../../components/common/StatCard";
+import { LoadingState } from "../../components/common/LoadingState";
+import { EmptyState } from "../../components/common/EmptyState";
 
 export const SubscriptionDashboard = () => {
+  const navigate = useNavigate();
   const { role } = useAuth();
   const [subscriptions, setSubscriptions] = useState([]);
   const [metrics, setMetrics] = useState(null);
@@ -51,7 +56,6 @@ export const SubscriptionDashboard = () => {
     fetchData();
   }, []);
 
-  // Filter subscriptions client-side for fast UX
   const filteredSubscriptions = subscriptions.filter((sub) => {
     const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
     const matchesSearch =
@@ -63,244 +67,223 @@ export const SubscriptionDashboard = () => {
     return matchesStatus && matchesSearch;
   });
 
+  const formatCurrency = (val) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 2
+    }).format(val || 0);
+  };
+
   return (
-    <div className="page-container" style={{ maxWidth: "1280px", margin: "0 auto", padding: "24px" }}>
-      {/* Top Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
-        <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>
-            Subscription Lifecycle Management
-          </h1>
-          <p style={{ color: "#64748b", margin: "4px 0 0 0", fontSize: "0.9rem" }}>
-            Manage Brightloop customer subscriptions, trial conversions, renewals, and recurring billing synchronization.
-          </p>
-        </div>
-
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button
-            type="button"
-            className="btn btn-outline"
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
-            onClick={fetchData}
-            disabled={loading}
-          >
-            <RefreshCw size={15} className={loading ? "spin" : ""} /> Refresh
-          </button>
-
-          {role !== "customer" && (
-            <Link
-              to="/subscriptions/create"
-              className="btn btn-primary"
-              style={{ display: "flex", alignItems: "center", gap: "6px" }}
+    <div className="space-y-6">
+      {/* Header */}
+      <PageHeader
+        title="Subscription Management"
+        subtitle="Manage customer subscriptions, trial conversions, renewals, and recurring billing synchronization."
+        action={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={fetchData}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold transition shadow-xs"
             >
-              <Plus size={16} /> New Subscription
-            </Link>
-          )}
-        </div>
-      </div>
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+            </button>
+
+            {role !== "customer" && (
+              <Link
+                to="/subscriptions/create"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+              >
+                <Plus className="w-4 h-4" /> New Subscription
+              </Link>
+            )}
+          </div>
+        }
+      />
 
       {/* Metrics Row */}
       {metrics && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#64748b", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Total Subscriptions</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#0f172a", marginTop: "4px" }}>
-              {metrics.totalSubscriptions || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>Across all states</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #86efac", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#15803d", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Active Subscriptions</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#15803d", marginTop: "4px" }}>
-              {metrics.statusCounts?.active || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#16a34a", marginTop: "4px" }}>Generating recurring revenue</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #c7d2fe", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#4338ca", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Trial Periods</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#4338ca", marginTop: "4px" }}>
-              {metrics.statusCounts?.trial || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#6366f1", marginTop: "4px" }}>Evaluations underway</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #fde68a", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#b45309", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Paused</div>
-            <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#b45309", marginTop: "4px" }}>
-              {metrics.statusCounts?.paused || 0}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#d97706", marginTop: "4px" }}>Temporarily suspended</div>
-          </div>
-
-          <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-            <div style={{ color: "#0f172a", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>Active Contract Value</div>
-            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#2563eb", marginTop: "4px" }}>
-              ₹{(metrics.financials?.activeContractValue || 0).toLocaleString()}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>Active run-rate</div>
-          </div>
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <StatCard
+            label="Total Subscriptions"
+            value={metrics.totalSubscriptions || 0}
+            icon={TrendingUp}
+            color="blue"
+          />
+          <StatCard
+            label="Active"
+            value={metrics.statusCounts?.active || 0}
+            icon={CheckCircle2}
+            color="emerald"
+          />
+          <StatCard
+            label="Trial Periods"
+            value={metrics.statusCounts?.trial || 0}
+            icon={Clock}
+            color="indigo"
+          />
+          <StatCard
+            label="Paused"
+            value={metrics.statusCounts?.paused || 0}
+            icon={PauseCircle}
+            color="amber"
+          />
+          <StatCard
+            label="Contract Value"
+            value={formatCurrency(metrics.financials?.activeContractValue || 0)}
+            icon={TrendingUp}
+            color="blue"
+          />
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div style={{ background: "#ffffff", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "20px", display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: "260px" }}>
-          <div style={{ position: "relative", width: "100%" }}>
-            <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "11px" }} />
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by subscription #, customer name, company, or plan..."
-              style={{ paddingLeft: "36px" }}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:w-96">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            placeholder="Search by subscription #, customer, company, or plan..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "0.85rem", color: "#64748b", display: "flex", alignItems: "center", gap: "4px" }}>
-            <Filter size={15} /> Status:
-          </span>
-          <select
-            className="form-control"
-            style={{ width: "auto" }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Statuses ({subscriptions.length})</option>
-            <option value="active">Active</option>
-            <option value="trial">Trial</option>
-            <option value="pending">Pending</option>
-            <option value="paused">Paused</option>
-            <option value="past_due">Past Due</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="expired">Expired</option>
-          </select>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select
+              className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-700"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses ({subscriptions.length})</option>
+              <option value="active">Active</option>
+              <option value="trial">Trial</option>
+              <option value="pending">Pending</option>
+              <option value="paused">Paused</option>
+              <option value="past_due">Past Due</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="expired">Expired</option>
+            </select>
+          </div>
+
+          {(search || statusFilter !== "all") && (
+            <button
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
+              }}
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Reset
+            </button>
+          )}
         </div>
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && (
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl">
+          {error}
+        </div>
+      )}
 
-      {/* Subscriptions Table */}
-      <div style={{ background: "#ffffff", borderRadius: "10px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+      {/* Subscriptions Table Card */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
         {loading ? (
-          <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
-            <RefreshCw size={24} className="spin" style={{ margin: "0 auto 12px auto" }} />
-            <p>Loading subscriptions...</p>
-          </div>
+          <LoadingState message="Loading subscriptions..." />
         ) : filteredSubscriptions.length === 0 ? (
-          <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
-            <AlertCircle size={28} color="#94a3b8" style={{ margin: "0 auto 12px auto" }} />
-            <p style={{ fontWeight: 500, fontSize: "1rem" }}>No subscriptions found matching your query.</p>
-            <span style={{ fontSize: "0.85rem" }}>
-              Try adjusting your search criteria or create a new subscription.
-            </span>
-          </div>
+          <EmptyState
+            title="No subscriptions found"
+            description="No active or pending subscriptions match your search filter."
+            actionText={role !== "customer" ? "Create Subscription" : undefined}
+            onAction={role !== "customer" ? () => navigate("/subscriptions/create") : undefined}
+          />
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="items-table" style={{ width: "100%", margin: 0 }}>
-              <thead>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 <tr>
-                  <th>Subscription #</th>
-                  <th>Customer</th>
-                  <th>Primary Plan</th>
-                  <th>Status</th>
-                  <th>Current Period End</th>
-                  <th>Next Billing</th>
-                  <th>Amount</th>
-                  <th>Billing Sync</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                  <th className="px-5 py-3.5">Subscription #</th>
+                  <th className="px-5 py-3.5">Customer</th>
+                  <th className="px-5 py-3.5">Primary Plan</th>
+                  <th className="px-5 py-3.5 text-center">Status</th>
+                  <th className="px-5 py-3.5">Period End</th>
+                  <th className="px-5 py-3.5">Next Billing</th>
+                  <th className="px-5 py-3.5 text-right">Amount</th>
+                  <th className="px-5 py-3.5 text-center">Billing Sync</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {filteredSubscriptions.map((sub) => {
                   const primaryPlan = sub.lineItems?.[0]?.planSnapshot || {};
                   return (
-                    <tr key={sub._id}>
-                      <td>
-                        <Link
-                          to={`/subscriptions/${sub._id}`}
-                          style={{ fontWeight: 600, color: "#2563eb", display: "flex", alignItems: "center", gap: "4px" }}
-                        >
+                    <tr key={sub._id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-5 py-4 font-mono font-medium text-blue-600">
+                        <Link to={`/subscriptions/${sub._id}`} className="hover:underline">
                           {sub.subscriptionNumber}
                         </Link>
                         {sub.quotationSnapshot?.quotationNumber && (
-                          <div style={{ fontSize: "0.7rem", color: "#64748b" }}>
-                            Via {sub.quotationSnapshot.quotationNumber}
+                          <div className="text-xs text-slate-400 font-normal">
+                            Quote: {sub.quotationSnapshot.quotationNumber}
                           </div>
                         )}
                       </td>
 
-                      <td>
-                        <strong>{sub.customerSnapshot?.name || "Customer"}</strong>
+                      <td className="px-5 py-4">
+                        <div className="font-medium text-slate-900">{sub.customerSnapshot?.name}</div>
                         {sub.customerSnapshot?.companyName && (
-                          <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
-                            {sub.customerSnapshot.companyName}
-                          </div>
+                          <div className="text-xs text-slate-500">{sub.customerSnapshot.companyName}</div>
                         )}
                       </td>
 
-                      <td>
-                        <div style={{ fontWeight: 500 }}>{primaryPlan.name || "Custom Plan"}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#64748b", textTransform: "capitalize" }}>
-                          {sub.lineItems?.[0]?.billingFrequency || "monthly"} cycle
+                      <td className="px-5 py-4">
+                        <div className="font-medium text-slate-800">{primaryPlan.name || "Custom Plan"}</div>
+                        <div className="text-xs text-slate-400 capitalize">
+                          {primaryPlan.billingFrequency || primaryPlan.billingInterval || "Monthly"}
                         </div>
                       </td>
 
-                      <td>
+                      <td className="px-5 py-4 text-center">
                         <SubscriptionStatusBadge status={sub.status} />
                       </td>
 
-                      <td style={{ fontSize: "0.85rem" }}>
-                        {sub.currentPeriodEnd
-                          ? new Date(sub.currentPeriodEnd).toLocaleDateString()
-                          : <span style={{ color: "#94a3b8" }}>—</span>}
+                      <td className="px-5 py-4 text-xs text-slate-600">
+                        {sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : "—"}
                       </td>
 
-                      <td style={{ fontSize: "0.85rem" }}>
-                        {sub.nextBillingDate ? (
-                          <strong style={{ color: "#2563eb" }}>
-                            {new Date(sub.nextBillingDate).toLocaleDateString()}
-                          </strong>
+                      <td className="px-5 py-4 text-xs text-slate-600">
+                        {sub.nextBillingDate ? new Date(sub.nextBillingDate).toLocaleDateString() : "—"}
+                      </td>
+
+                      <td className="px-5 py-4 text-right font-semibold text-slate-900">
+                        {formatCurrency(sub.recurringAmount || sub.grandTotal)}
+                      </td>
+
+                      <td className="px-5 py-4 text-center">
+                        {sub.billingScheduleId ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Synced
+                          </span>
                         ) : (
-                          <span style={{ color: "#94a3b8" }}>—</span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Pending
+                          </span>
                         )}
                       </td>
 
-                      <td>
-                        <strong>₹{(sub.totalAmount || 0).toLocaleString()}</strong>
-                      </td>
-
-                      <td>
-                        <span
-                          style={{
-                            fontSize: "0.7rem",
-                            padding: "2px 6px",
-                            borderRadius: "4px",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            backgroundColor:
-                              sub.billingIntegration?.status === "registered" ? "#dcfce7" :
-                              sub.billingIntegration?.status === "failed" ? "#fee2e2" : "#f1f5f9",
-                            color:
-                              sub.billingIntegration?.status === "registered" ? "#15803d" :
-                              sub.billingIntegration?.status === "failed" ? "#b91c1c" : "#475569"
-                          }}
-                        >
-                          {sub.billingIntegration?.status || "pending"}
-                        </span>
-                      </td>
-
-                      <td style={{ textAlign: "right" }}>
+                      <td className="px-5 py-4 text-right">
                         <Link
                           to={`/subscriptions/${sub._id}`}
-                          className="btn btn-outline"
-                          style={{ padding: "4px 8px", fontSize: "0.75rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                          className="inline-flex items-center gap-1 p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          title="View Subscription Details"
                         >
-                          <Eye size={13} /> View
+                          <Eye className="w-4 h-4" />
                         </Link>
                       </td>
                     </tr>

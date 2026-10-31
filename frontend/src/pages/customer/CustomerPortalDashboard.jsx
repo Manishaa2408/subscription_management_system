@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import customerService from '../../services/customerService';
 import PortalLayout from '../../components/portal/PortalLayout';
+import { StatCard } from '../../components/common/StatCard';
+import { LoadingState } from '../../components/common/LoadingState';
 import {
   Repeat,
   Receipt,
   CreditCard,
-  FileSpreadsheet,
-  ArrowRight,
   ShieldCheck,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ArrowRight,
+  IndianRupee,
+  Calendar,
+  CheckCircle2
 } from 'lucide-react';
 
 const CustomerPortalDashboard = () => {
@@ -38,11 +42,8 @@ const CustomerPortalDashboard = () => {
 
   if (loading) {
     return (
-      <PortalLayout title="Dashboard" subtitle="Welcome to your Brightloop Software subscription portal">
-        <div style={{ textAlign: 'center', padding: '4rem' }}>
-          <div className="spinner spinner-primary" style={{ margin: '0 auto 1rem' }} />
-          <p style={{ color: 'var(--slate-500)' }}>Loading your subscription data...</p>
-        </div>
+      <PortalLayout title="Customer Portal" subtitle="Welcome to your Brightloop Software subscription portal">
+        <LoadingState message="Loading your subscription and account data..." />
       </PortalLayout>
     );
   }
@@ -52,141 +53,86 @@ const CustomerPortalDashboard = () => {
 
   return (
     <PortalLayout
-      title={`Welcome back, ${customer?.displayName || 'Customer'}`}
-      subtitle="Here is an overview of your active subscriptions, billing statements, and recent operations."
+      title={`Welcome back, ${customer?.displayName || customer?.name || 'Customer'}`}
+      subtitle="Here is an overview of your active subscriptions, invoices, and recent account operations."
     >
       {error && (
-        <div className="alert alert-danger" style={{ marginBottom: '1.5rem' }}>
-          <AlertCircle size={18} />
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl flex items-center gap-2 mb-6">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {/* KPI Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.75rem'
-        }}
-      >
-        <div className="dashboard-card" style={{ padding: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-              Active Subscriptions
-            </span>
-            <Repeat size={18} color="var(--primary)" />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--slate-900)', marginTop: '0.25rem' }}>
-            {stats?.activeSubscriptions || 0}
-          </div>
-          <Link
-            to="/customer/subscriptions"
-            style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
-          >
-            <span>Manage plans</span>
-            <ArrowRight size={13} />
-          </Link>
-        </div>
-
-        <div className="dashboard-card" style={{ padding: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-              Outstanding Balance
-            </span>
-            <Receipt size={18} color={stats?.totalOutstandingBalance > 0 ? '#ef4444' : '#10b981'} />
-          </div>
-          <div
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: 800,
-              color: stats?.totalOutstandingBalance > 0 ? '#b91c1c' : '#15803d',
-              marginTop: '0.25rem'
-            }}
-          >
-            ₹{(stats?.totalOutstandingBalance || 0).toLocaleString()}
-          </div>
-          <Link
-            to="/customer/invoices"
-            style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
-          >
-            <span>View invoices</span>
-            <ArrowRight size={13} />
-          </Link>
-        </div>
-
-        <div className="dashboard-card" style={{ padding: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-              Total Paid
-            </span>
-            <CreditCard size={18} color="#10b981" />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#15803d', marginTop: '0.25rem' }}>
-            ₹{(stats?.totalPaidAmount || 0).toLocaleString()}
-          </div>
-          <Link
-            to="/customer/payments"
-            style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
-          >
-            <span>Payment history</span>
-            <ArrowRight size={13} />
-          </Link>
-        </div>
-
-        <div className="dashboard-card" style={{ padding: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-              Account Status
-            </span>
-            <ShieldCheck size={18} color="#10b981" />
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--slate-900)', marginTop: '0.25rem', textTransform: 'capitalize' }}>
-            {customer?.status || 'Active'}
-          </div>
-          <div style={{ fontSize: '0.785rem', color: 'var(--slate-400)', marginTop: '0.5rem' }}>
-            Code: <code>{customer?.customerCode || 'CUST-PORTAL'}</code>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard
+          label="Active Subscriptions"
+          value={stats?.activeSubscriptions || 0}
+          change="Managed plans"
+          icon={Repeat}
+          color="blue"
+        />
+        <StatCard
+          label="Outstanding Balance"
+          value={`₹${(stats?.totalOutstandingBalance || 0).toLocaleString('en-IN')}`}
+          change={stats?.totalOutstandingBalance > 0 ? "Payment pending" : "All caught up"}
+          icon={Receipt}
+          color={stats?.totalOutstandingBalance > 0 ? "rose" : "emerald"}
+        />
+        <StatCard
+          label="Total Paid"
+          value={`₹${(stats?.totalPaidAmount || 0).toLocaleString('en-IN')}`}
+          change="Lifetime billing"
+          icon={IndianRupee}
+          color="emerald"
+        />
+        <StatCard
+          label="Account Status"
+          value={customer?.status || 'Active'}
+          change={`ID: ${customer?.customerCode || 'CUST-0001'}`}
+          icon={ShieldCheck}
+          color="indigo"
+        />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      {/* Subscriptions & Invoices 2-column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Active Subscriptions */}
-        <div className="dashboard-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1rem', color: 'var(--slate-900)' }}>Active Subscriptions</h3>
-            <Link to="/customer/subscriptions" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-              View all
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-slate-900">Active Subscriptions</h3>
+            <Link
+              to="/customer/subscriptions"
+              className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+            >
+              View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
+
           {recentSubscriptions.length === 0 ? (
-            <p style={{ color: 'var(--slate-400)', fontSize: '0.85rem' }}>No subscriptions found.</p>
+            <div className="p-8 text-center text-slate-400 text-sm">
+              No subscriptions found.
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="space-y-3">
               {recentSubscriptions.map((s) => (
                 <div
                   key={s.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0.75rem',
-                    background: 'var(--slate-50)',
-                    borderRadius: '8px'
-                  }}
+                  className="flex items-center justify-between p-3.5 bg-slate-50/75 hover:bg-slate-50 border border-slate-100 rounded-xl transition"
                 >
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.planName}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+                    <div className="font-semibold text-sm text-slate-900">{s.planName}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">
                       Renews: {new Date(s.nextBillingDate).toLocaleDateString()}
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--slate-900)' }}>
-                      ₹{s.amount.toLocaleString()} / {s.interval}
+                  <div className="text-right">
+                    <div className="font-bold text-sm text-slate-900">
+                      ₹{s.amount.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">/ {s.interval}</span>
                     </div>
-                    <span className="badge-active" style={{ fontSize: '0.7rem' }}>{s.status}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 mt-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {s.status}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -195,43 +141,46 @@ const CustomerPortalDashboard = () => {
         </div>
 
         {/* Recent Invoices */}
-        <div className="dashboard-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1rem', color: 'var(--slate-900)' }}>Recent Invoices</h3>
-            <Link to="/customer/invoices" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-              View all
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-slate-900">Recent Invoices</h3>
+            <Link
+              to="/customer/invoices"
+              className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+            >
+              View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
+
           {recentInvoices.length === 0 ? (
-            <p style={{ color: 'var(--slate-400)', fontSize: '0.85rem' }}>No invoices found.</p>
+            <div className="p-8 text-center text-slate-400 text-sm">
+              No invoices found.
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="space-y-3">
               {recentInvoices.map((inv) => (
                 <div
                   key={inv.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0.75rem',
-                    background: 'var(--slate-50)',
-                    borderRadius: '8px'
-                  }}
+                  className="flex items-center justify-between p-3.5 bg-slate-50/75 hover:bg-slate-50 border border-slate-100 rounded-xl transition"
                 >
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{inv.invoiceNumber}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+                    <div className="font-mono font-medium text-xs text-blue-600">{inv.invoiceNumber}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">
                       Due: {new Date(inv.dueDate).toLocaleDateString()}
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--slate-900)' }}>
-                      ₹{inv.totalAmount.toLocaleString()}
+                  <div className="text-right">
+                    <div className="font-bold text-sm text-slate-900">
+                      ₹{inv.totalAmount.toLocaleString('en-IN')}
                     </div>
                     <span
-                      className={inv.status === 'paid' ? 'badge-active' : 'badge-inactive'}
-                      style={{ fontSize: '0.7rem' }}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold mt-1 border ${
+                        inv.status === 'paid'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                      }`}
                     >
+                      <span className={`w-1.5 h-1.5 rounded-full ${inv.status === 'paid' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                       {inv.status}
                     </span>
                   </div>
@@ -243,40 +192,23 @@ const CustomerPortalDashboard = () => {
       </div>
 
       {/* Account Activity Timeline */}
-      <div className="dashboard-card">
-        <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Recent Account Activity</h3>
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+        <h3 className="text-base font-bold text-slate-900 mb-4">Recent Account Activity</h3>
         {recentActivity.length === 0 ? (
-          <p style={{ color: 'var(--slate-400)', fontSize: '0.85rem' }}>No recent account events logged.</p>
+          <p className="text-xs text-slate-400">No recent account events logged.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="space-y-3">
             {recentActivity.map((act) => (
               <div
                 key={act.id || act._id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  fontSize: '0.85rem'
-                }}
+                className="flex items-center gap-3 text-xs"
               >
-                <div
-                  style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '50%',
-                    background: '#eff6ff',
-                    color: 'var(--primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}
-                >
-                  <Clock size={14} />
+                <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
                 </div>
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--slate-800)', fontWeight: 500 }}>{act.description}</span>
-                  <span style={{ color: 'var(--slate-400)', fontSize: '0.75rem' }}>
+                <div className="flex-1 flex items-center justify-between">
+                  <span className="font-medium text-slate-800">{act.description}</span>
+                  <span className="text-slate-400">
                     {new Date(act.createdAt).toLocaleString()}
                   </span>
                 </div>

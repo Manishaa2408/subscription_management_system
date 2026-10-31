@@ -141,22 +141,22 @@ export const CreateSubscription = () => {
   const chosenPlanObj = plans.find((p) => p._id === selectedPlanId);
 
   return (
-    <div className="page-container" style={{ maxWidth: "860px", margin: "0 auto", padding: "24px" }}>
+    <div className="space-y-6 max-w-4xl">
       {/* Header */}
-      <div style={{ marginBottom: "20px" }}>
-        <Link to="/subscriptions" style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#64748b", fontSize: "0.85rem", marginBottom: "8px" }}>
-          <ArrowLeft size={16} /> Back to Subscriptions
+      <div>
+        <Link to="/subscriptions" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 mb-2 transition">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Subscriptions
         </Link>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>
+        <h1 className="text-2xl font-bold text-slate-900">
           New Subscription
         </h1>
-        <p style={{ color: "#64748b", margin: "4px 0 0 0", fontSize: "0.9rem" }}>
-          Convert an accepted commercial proposal (M6) or configure a new standalone subscription contract.
+        <p className="text-sm text-slate-500 mt-1">
+          Convert an accepted commercial proposal or configure a new standalone subscription contract.
         </p>
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {error && <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl">{error}</div>}
+      {success && <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl">{success}</div>}
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: "10px", borderBottom: "2px solid #e2e8f0", marginBottom: "24px" }}>
@@ -225,7 +225,7 @@ export const CreateSubscription = () => {
               <AlertCircle size={24} style={{ margin: "0 auto 8px auto", opacity: 0.5 }} />
               <p style={{ margin: 0, fontWeight: 500 }}>No unconverted accepted quotations found.</p>
               <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-                Accept a quotation in the Quotations module (M6) first or use Manual Creation.
+                Accept a quotation in Quotations first or use Manual Creation.
               </span>
             </div>
           ) : (

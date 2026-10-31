@@ -5,11 +5,14 @@ import { useAuth } from "../../context/AuthContext";
 import TemplateFilters from "../../components/quotationTemplates/TemplateFilters";
 import TemplateStatusBadge from "../../components/quotationTemplates/TemplateStatusBadge";
 import TemplatePreview from "../../components/quotationTemplates/TemplatePreview";
-import { Plus, Eye, Edit2, Trash2, Power, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { PageHeader } from "../../components/common/PageHeader";
+import { LoadingState } from "../../components/common/LoadingState";
+import { EmptyState } from "../../components/common/EmptyState";
+import { Plus, Eye, Edit2, Trash2, Power, AlertCircle, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
 export const TemplateList = () => {
   const navigate = useNavigate();
-  const { role, isAdmin, isStaff, isCustomer } = useAuth();
+  const { role, isAdmin, isCustomer } = useAuth();
 
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,16 +25,13 @@ export const TemplateList = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
 
-  // Customer has NO access to M5 template management
   if (isCustomer) {
     return (
-      <div className="card" style={{ textAlign: "center", padding: "60px 20px" }}>
-        <AlertCircle size={48} color="#ef4444" style={{ marginBottom: "16px" }} />
-        <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>
-          Access Denied
-        </h2>
-        <p style={{ color: "#64748b", maxWidth: "480px", margin: "0 auto" }}>
-          Customer accounts cannot view or manage internal quotation templates. Please switch to an <strong>Admin</strong> or <strong>Staff</strong> account to manage sales packages.
+      <div className="bg-white rounded-xl border border-slate-200 p-8 text-center max-w-lg mx-auto">
+        <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-3" />
+        <h2 className="text-lg font-bold text-slate-800 mb-2">Access Denied</h2>
+        <p className="text-sm text-slate-500">
+          Customer accounts cannot view or manage internal quotation templates. Please sign in with an Admin or Staff account.
         </p>
       </div>
     );
@@ -62,7 +62,6 @@ export const TemplateList = () => {
     fetchTemplates();
   }, [page, status, role]);
 
-  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       setPage(1);
@@ -84,7 +83,7 @@ export const TemplateList = () => {
 
   const handleDelete = async (id, name) => {
     if (!isAdmin) return;
-    if (!window.confirm(`Are you sure you want to deactivate / delete template "${name}"?`)) {
+    if (!window.confirm(`Are you sure you want to delete template "${name}"?`)) {
       return;
     }
     try {
@@ -104,22 +103,22 @@ export const TemplateList = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Header */}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Quotation Templates</h1>
-          <p className="page-subtitle">
-            Configure and manage reusable quotation presets for products, variants and plans.
-          </p>
-        </div>
-
-        {isAdmin && (
-          <Link to="/templates/create" className="btn btn-primary">
-            <Plus size={16} /> Create Template
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        title="Quotation Templates"
+        subtitle="Configure and manage reusable quotation presets for products, variants and subscription plans."
+        action={
+          isAdmin && (
+            <Link
+              to="/templates/create"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+            >
+              <Plus className="w-4 h-4" /> Create Template
+            </Link>
+          )
+        }
+      />
 
       {/* Filters */}
       <TemplateFilters
@@ -127,7 +126,7 @@ export const TemplateList = () => {
         setSearch={setSearch}
         status={status}
         setStatus={setStatus}
-        showStatusFilter={isAdmin} // Staff only sees active by default
+        showStatusFilter={isAdmin}
         onReset={() => {
           setSearch("");
           setStatus("");
@@ -135,173 +134,169 @@ export const TemplateList = () => {
         }}
       />
 
-      {/* Error Message */}
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && (
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl">
+          {error}
+        </div>
+      )}
 
-      {/* Table */}
-      <div className="card" style={{ padding: 0 }}>
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th style={{ width: "120px" }}>Code</th>
-                <th>Template Name</th>
-                <th style={{ width: "100px", textAlign: "center" }}>Items</th>
-                <th style={{ width: "110px", textAlign: "center" }}>Validity</th>
-                <th style={{ width: "150px", textAlign: "right" }}>Grand Total</th>
-                <th style={{ width: "100px", textAlign: "center" }}>Status</th>
-                <th style={{ width: "130px" }}>Created</th>
-                <th style={{ width: "160px", textAlign: "center" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+      {/* Table Card */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {loading ? (
+          <LoadingState message="Loading templates..." />
+        ) : templates.length === 0 ? (
+          <EmptyState
+            title="No quotation templates found"
+            description="Create reusable commercial proposal presets with standard products, tiers, and validity."
+            actionText={isAdmin ? "Create Template" : undefined}
+            onAction={isAdmin ? () => navigate("/templates/create") : undefined}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-                    Loading templates from MongoDB...
-                  </td>
+                  <th className="px-5 py-3.5">Code</th>
+                  <th className="px-5 py-3.5">Template Name</th>
+                  <th className="px-5 py-3.5 text-center">Items</th>
+                  <th className="px-5 py-3.5 text-center">Validity</th>
+                  <th className="px-5 py-3.5 text-right">Grand Total</th>
+                  <th className="px-5 py-3.5 text-center">Status</th>
+                  <th className="px-5 py-3.5">Created</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
-              ) : templates.length === 0 ? (
-                <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "48px", color: "#64748b" }}>
-                    No quotation templates found. {isAdmin && "Click 'Create Template' above to get started."}
-                  </td>
-                </tr>
-              ) : (
-                templates.map((t) => (
-                  <tr key={t._id}>
-                    {/* Code */}
-                    <td style={{ fontWeight: 700, color: "#1e40af" }}>
-                      <Link to={`/templates/${t._id}`}>{t.code}</Link>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {templates.map((t) => (
+                  <tr key={t._id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-5 py-4 font-mono font-medium text-blue-600">
+                      <Link to={`/templates/${t._id}`} className="hover:underline">
+                        {t.code}
+                      </Link>
                     </td>
 
-                    {/* Name */}
-                    <td>
-                      <div style={{ fontWeight: 600, color: "#0f172a" }}>
-                        <Link to={`/templates/${t._id}`}>{t.name}</Link>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-slate-900">
+                        <Link to={`/templates/${t._id}`} className="hover:text-blue-600">
+                          {t.name}
+                        </Link>
                       </div>
                       {t.description && (
-                        <div style={{ fontSize: "0.8rem", color: "#64748b", maxWidth: "340px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <div className="text-xs text-slate-500 max-w-sm truncate mt-0.5">
                           {t.description}
                         </div>
                       )}
                     </td>
 
-                    {/* Items count */}
-                    <td style={{ textAlign: "center", fontWeight: 500 }}>
+                    <td className="px-5 py-4 text-center font-medium text-slate-700">
                       {t.items?.length || 0}
                     </td>
 
-                    {/* Validity */}
-                    <td style={{ textAlign: "center", color: "#475569" }}>
+                    <td className="px-5 py-4 text-center text-xs text-slate-600">
                       {t.validityDays} days
                     </td>
 
-                    {/* Grand Total */}
-                    <td style={{ textAlign: "right", fontWeight: 700, color: "#0f172a" }}>
+                    <td className="px-5 py-4 text-right font-semibold text-slate-900">
                       {formatCurrency(t.grandTotal)}
                     </td>
 
-                    {/* Status */}
-                    <td style={{ textAlign: "center" }}>
+                    <td className="px-5 py-4 text-center">
                       <TemplateStatusBadge status={t.status} />
                     </td>
 
-                    {/* Created Date */}
-                    <td style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                    <td className="px-5 py-4 text-xs text-slate-500">
                       {new Date(t.createdAt).toLocaleDateString()}
                     </td>
 
-                    {/* Actions */}
-                    <td style={{ textAlign: "center" }}>
-                      <div style={{ display: "inline-flex", gap: "6px" }}>
-                        {/* View Details */}
+                    <td className="px-5 py-4 text-right">
+                      <div className="inline-flex items-center gap-1.5">
                         <button
-                          className="btn btn-outline btn-sm"
+                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                           title="View Details"
                           onClick={() => navigate(`/templates/${t._id}`)}
                         >
-                          <Eye size={14} />
+                          <Eye className="w-4 h-4" />
                         </button>
 
-                        {/* Quick Preview */}
                         <button
-                          className="btn btn-outline btn-sm"
+                          className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
                           title="Preview Template"
                           onClick={() => setPreviewTemplate(t)}
                         >
                           Preview
                         </button>
 
-                        {/* Admin-only edit & delete */}
                         {isAdmin && (
                           <>
                             <button
-                              className="btn btn-outline btn-sm"
+                              className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
                               title="Edit Template"
                               onClick={() => navigate(`/templates/${t._id}/edit`)}
                             >
-                              <Edit2 size={14} />
+                              <Edit2 className="w-4 h-4" />
                             </button>
 
                             <button
-                              className="btn btn-outline btn-sm"
+                              className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
                               title={t.status === "active" ? "Deactivate Template" : "Activate Template"}
                               onClick={() => handleStatusToggle(t)}
                             >
-                              <Power size={14} color={t.status === "active" ? "#b45309" : "#15803d"} />
+                              <Power className="w-4 h-4" />
                             </button>
 
                             <button
-                              className="btn btn-danger btn-sm"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                               title="Delete Template"
                               onClick={() => handleDelete(t._id, t.name)}
                             >
-                              <Trash2 size={14} />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </>
                         )}
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        {/* Pagination */}
+        {/* Pagination Footer */}
         {pagination.totalPages > 1 && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px" }}>
-            <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+          <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 bg-slate-50/50 text-xs text-slate-500">
+            <div>
               Showing {templates.length} of {pagination.total} templates
             </div>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <div className="flex items-center gap-2">
               <button
-                className="btn btn-outline btn-sm"
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                <ChevronLeft size={16} /> Prev
+                <ChevronLeft className="w-3.5 h-3.5 inline mr-1" /> Prev
               </button>
-              <span style={{ fontSize: "0.85rem", fontWeight: 600, padding: "0 8px" }}>
+              <span className="font-semibold text-slate-700">
                 {page} / {pagination.totalPages}
               </span>
               <button
-                className="btn btn-outline btn-sm"
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition"
                 disabled={page >= pagination.totalPages}
                 onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
               >
-                Next <ChevronRight size={16} />
+                Next <ChevronRight className="w-3.5 h-3.5 inline ml-1" />
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Preview Modal */}
+      {/* Quick Preview Modal */}
       {previewTemplate && (
-        <TemplatePreview template={previewTemplate} onClose={() => setPreviewTemplate(null)} />
+        <TemplatePreview
+          template={previewTemplate}
+          onClose={() => setPreviewTemplate(null)}
+        />
       )}
     </div>
   );

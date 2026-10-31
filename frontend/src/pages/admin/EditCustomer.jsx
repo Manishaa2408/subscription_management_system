@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import customerService from '../../services/customerService';
-import Navbar from '../../components/common/Navbar';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle2,
+  Building2,
+  MapPin,
+  FileText,
+  User,
+  Phone,
+  Globe,
+  Briefcase,
+  Save,
+  RotateCcw
+} from 'lucide-react';
 
 const EditCustomer = () => {
   const { id } = useParams();
@@ -11,6 +23,7 @@ const EditCustomer = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [customerCode, setCustomerCode] = useState('');
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -46,6 +59,7 @@ const EditCustomer = () => {
         const res = await customerService.getCustomerById(id);
         if (res && res.data && res.data.customer) {
           const c = res.data.customer;
+          setCustomerCode(c.customerCode || '');
           setFormData({
             firstName: c.firstName || '',
             lastName: c.lastName || '',
@@ -115,206 +129,246 @@ const EditCustomer = () => {
 
   if (loading) {
     return (
-      <div className="app-container">
-        <Navbar />
-        <main className="main-content" style={{ textAlign: 'center', padding: '4rem' }}>
-          <div className="spinner spinner-primary" style={{ margin: '0 auto 1rem' }} />
-          <p style={{ color: 'var(--slate-500)' }}>Loading customer details...</p>
-        </main>
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="w-8 h-8 border-2 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm font-medium text-slate-500">Loading customer details...</p>
       </div>
     );
   }
 
   return (
-    <div className="app-container">
-      <Navbar />
-      <main className="main-content" style={{ maxWidth: '850px' }}>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <Link
-            to={`/admin/customers/${id}`}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              color: 'var(--slate-600)',
-              fontSize: '0.875rem',
-              marginBottom: '0.75rem'
-            }}
-          >
-            <ArrowLeft size={16} />
-            <span>Cancel and Return</span>
-          </Link>
-          <h1 className="page-title">Edit Customer Profile</h1>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Back breadcrumb navigation */}
+      <div>
+        <Link
+          to={`/admin/customers/${id}`}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition mb-2"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Customer Profile</span>
+        </Link>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Edit Customer Profile</h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Account Code: <span className="font-mono font-semibold text-blue-600">{customerCode}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {errorMessage && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Section 1: General Information */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 space-y-5">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <User className="w-4 h-4 text-blue-600" />
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">General Information</h2>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              Display Name *
+            </label>
+            <input
+              type="text"
+              name="displayName"
+              className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+              value={formData.displayName}
+              onChange={handleChange}
+              placeholder="e.g. Acme Corporation or Sarah Jenkins"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                First Name
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                Primary Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                Alternate Phone
+              </label>
+              <input
+                type="tel"
+                name="alternatePhone"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.alternatePhone}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                Corporate Website
+              </label>
+              <input
+                type="text"
+                name="website"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="https://company.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                Industry Segment
+              </label>
+              <input
+                type="text"
+                name="industry"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.industry}
+                onChange={handleChange}
+                placeholder="e.g. Technology, Healthcare, SaaS"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              Profile Notes / Description
+            </label>
+            <textarea
+              name="description"
+              rows={3}
+              className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Internal customer notes or billing preferences..."
+            />
+          </div>
         </div>
 
-        {errorMessage && (
-          <div className="alert alert-danger" style={{ marginBottom: '1.5rem' }}>
-            <AlertCircle size={18} />
-            <span>{errorMessage}</span>
+        {/* Section 2: Billing Address */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <MapPin className="w-4 h-4 text-blue-600" />
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">Billing Address</h2>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="dashboard-card" style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.05rem', marginBottom: '1rem', borderBottom: '1px solid var(--slate-200)', paddingBottom: '0.5rem' }}>
-              General Information
-            </h3>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              Street Address
+            </label>
+            <input
+              type="text"
+              className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+              value={formData.billingAddress?.addressLine1 || ''}
+              onChange={(e) => handleAddressChange('billingAddress', 'addressLine1', e.target.value)}
+              placeholder="Building, street, or suite..."
+            />
+          </div>
 
-            <div className="form-group">
-              <label className="form-label">Display Name</label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                City
+              </label>
               <input
                 type="text"
-                name="displayName"
-                className="form-input"
-                value={formData.displayName}
-                onChange={handleChange}
-                required
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.billingAddress?.city || ''}
+                onChange={(e) => handleAddressChange('billingAddress', 'city', e.target.value)}
               />
             </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  className="form-input"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  className="form-input"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="form-input"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Alternate Phone</label>
-                <input
-                  type="tel"
-                  name="alternatePhone"
-                  className="form-input"
-                  value={formData.alternatePhone}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Website</label>
-                <input
-                  type="url"
-                  name="website"
-                  className="form-input"
-                  value={formData.website}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Industry</label>
-                <input
-                  type="text"
-                  name="industry"
-                  className="form-input"
-                  value={formData.industry}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Profile Description / Notes</label>
-              <textarea
-                name="description"
-                className="form-input"
-                rows={3}
-                value={formData.description}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          {/* Billing Address Card */}
-          <div className="dashboard-card" style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.05rem', marginBottom: '1rem', borderBottom: '1px solid var(--slate-200)', paddingBottom: '0.5rem' }}>
-              Billing Address
-            </h3>
-
-            <div className="form-group">
-              <label className="form-label">Address Line 1</label>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                State / Province
+              </label>
               <input
                 type="text"
-                className="form-input"
-                value={formData.billingAddress.addressLine1}
-                onChange={(e) => handleAddressChange('billingAddress', 'addressLine1', e.target.value)}
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.billingAddress?.state || ''}
+                onChange={(e) => handleAddressChange('billingAddress', 'state', e.target.value)}
               />
             </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">City</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.billingAddress.city}
-                  onChange={(e) => handleAddressChange('billingAddress', 'city', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">State</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.billingAddress.state}
-                  onChange={(e) => handleAddressChange('billingAddress', 'state', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Postal Code</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.billingAddress.postalCode}
-                  onChange={(e) => handleAddressChange('billingAddress', 'postalCode', e.target.value)}
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                Postal Code
+              </label>
+              <input
+                type="text"
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900"
+                value={formData.billingAddress?.postalCode || ''}
+                onChange={(e) => handleAddressChange('billingAddress', 'postalCode', e.target.value)}
+              />
             </div>
           </div>
+        </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-            <Link to={`/admin/customers/${id}`} className="btn btn-secondary" style={{ width: 'auto' }}>
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: 'auto' }}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving Changes...' : 'Save Profile Changes'}
-            </button>
-          </div>
-        </form>
-      </main>
+        {/* Action Buttons Footer */}
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Link
+            to={`/admin/customers/${id}`}
+            className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg transition"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-blue-500/20 transition disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Saving Changes...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

@@ -122,17 +122,17 @@ export const EditDiscount = () => {
   }
 
   return (
-    <div className="page-container" style={{ maxWidth: "860px", margin: "0 auto", padding: "24px" }}>
-      <div style={{ marginBottom: "20px" }}>
-        <Link to={`/discounts/${id}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#64748b", fontSize: "0.85rem", marginBottom: "8px" }}>
-          <ArrowLeft size={16} /> Back to Discount Details
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <Link to={`/discounts/${id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 mb-2 transition">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Discount Details
         </Link>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#0f172a" }}>
-          Edit Discount – {discount?.code}
+        <h1 className="text-2xl font-bold text-slate-900">
+          Edit Discount – <span className="font-mono text-blue-600">{discount?.code}</span>
         </h1>
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div style={{ background: "#ffffff", padding: "24px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "20px" }}>

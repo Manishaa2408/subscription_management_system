@@ -244,7 +244,7 @@ export const InvoicePrintView = () => {
 
         {/* Footer */}
         <div className="mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-400">
-          <p>This is a computer-generated invoice created by Brightloop Subscription Management System (M10).</p>
+          <p>This is a computer-generated invoice created by Brightloop Subscription Management System.</p>
           <p className="mt-0.5">Thank you for choosing Brightloop Software!</p>
         </div>
       </div>

@@ -9,20 +9,19 @@ import {
 import StatusBadge from '../../../components/StatusBadge';
 import Toast from '../../../components/Toast';
 import ConfirmModal from '../../../components/ConfirmModal';
+import { PageHeader } from '../../../components/common/PageHeader';
+import { StatCard } from '../../../components/common/StatCard';
+import { LoadingState } from '../../../components/common/LoadingState';
+import { EmptyState } from '../../../components/common/EmptyState';
+import {
+  Plus, Search, Filter, RotateCcw, CheckCircle, Clock, AlertTriangle, IndianRupee, Eye, Check, X
+} from 'lucide-react';
 
 const STATUS_OPTIONS = ['', 'pending', 'completed', 'failed', 'cancelled', 'refunded', 'partially_refunded'];
 const METHOD_OPTIONS = ['', 'upi', 'bank_transfer', 'card', 'cash', 'cheque', 'other'];
 
 const fmt = (n) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n ?? 0);
-
-const AnalyticsCard = ({ label, value, sub, color }) => (
-  <div className={`bg-white rounded-xl border-l-4 ${color} p-4 shadow-sm`}>
-    <p className="text-xs text-gray-500 uppercase tracking-wide">{label}</p>
-    <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
-    {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
-  </div>
-);
 
 export default function PaymentList() {
   const [payments, setPayments] = useState([]);
@@ -83,148 +82,171 @@ export default function PaymentList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Manage and reconcile all customer payments</p>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <PageHeader
+        title="Payment & Collections"
+        subtitle="Record received payments, reconcile invoices, and monitor collection statuses."
+        action={
           <Link
             to="/admin/payments/create"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
           >
-            + Record Payment
+            <Plus className="w-4 h-4" /> Record Payment
           </Link>
+        }
+      />
+
+      {/* Analytics Cards */}
+      {analytics && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard
+            label="Total Collected"
+            value={fmt(analytics.totalCollected)}
+            change={`${analytics.completedCount ?? 0} completed`}
+            icon={IndianRupee}
+            color="emerald"
+          />
+          <StatCard
+            label="Pending Verification"
+            value={fmt(analytics.pendingAmount)}
+            change={`${analytics.pendingCount ?? 0} payments`}
+            icon={Clock}
+            color="amber"
+          />
+          <StatCard
+            label="Refunded"
+            value={fmt(analytics.refundedAmount)}
+            change={`${analytics.refundedCount ?? 0} refunds`}
+            icon={AlertTriangle}
+            color="purple"
+          />
+          <StatCard
+            label="Failed Transactions"
+            value={String(analytics.failedCount ?? 0)}
+            change="Re-attempt required"
+            icon={AlertTriangle}
+            color="rose"
+          />
         </div>
+      )}
 
-        {/* Analytics Cards */}
-        {analytics && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <AnalyticsCard
-              label="Total Collected"
-              value={fmt(analytics.totalCollected)}
-              sub={`${analytics.completedCount ?? 0} completed`}
-              color="border-emerald-500"
-            />
-            <AnalyticsCard
-              label="Pending"
-              value={fmt(analytics.pendingAmount)}
-              sub={`${analytics.pendingCount ?? 0} payments`}
-              color="border-amber-500"
-            />
-            <AnalyticsCard
-              label="Refunded"
-              value={fmt(analytics.refundedAmount)}
-              sub={`${analytics.refundedCount ?? 0} refunds`}
-              color="border-purple-500"
-            />
-            <AnalyticsCard
-              label="Failed"
-              value={String(analytics.failedCount ?? 0)}
-              sub="transactions"
-              color="border-rose-500"
-            />
-          </div>
-        )}
-
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 flex flex-wrap gap-3">
+      {/* Filters Bar */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search reference / customer..."
             value={filters.search}
             onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value })); setPage(1); }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           />
-          <select
-            value={filters.status}
-            onChange={(e) => { setFilters((f) => ({ ...f, status: e.target.value })); setPage(1); }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{s || 'All Statuses'}</option>
-            ))}
-          </select>
+        </div>
+
+        <div className="flex items-center gap-3 w-full md:w-auto flex-wrap">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select
+              value={filters.status}
+              onChange={(e) => { setFilters((f) => ({ ...f, status: e.target.value })); setPage(1); }}
+              className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-700"
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s ? s.replace('_', ' ') : 'All Statuses'}</option>
+              ))}
+            </select>
+          </div>
+
           <select
             value={filters.paymentMethod}
             onChange={(e) => { setFilters((f) => ({ ...f, paymentMethod: e.target.value })); setPage(1); }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-700 capitalize"
           >
             {METHOD_OPTIONS.map((m) => (
-              <option key={m} value={m}>{m || 'All Methods'}</option>
+              <option key={m} value={m}>{m ? m.replace('_', ' ') : 'All Payment Methods'}</option>
             ))}
           </select>
-          <button
-            onClick={() => { setFilters({ status: '', paymentMethod: '', search: '' }); setPage(1); }}
-            className="text-sm text-gray-500 hover:text-gray-700 px-3 py-2 border border-gray-300 rounded-lg"
-          >
-            Clear
-          </button>
-        </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          {loading ? (
-            <div className="flex items-center justify-center h-48 text-gray-400">Loading payments…</div>
-          ) : payments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-              <p className="text-lg">No payments found</p>
-              <Link to="/admin/payments/create" className="mt-2 text-blue-600 text-sm hover:underline">
-                Record the first payment
-              </Link>
-            </div>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+          {(filters.search || filters.status || filters.paymentMethod) && (
+            <button
+              onClick={() => { setFilters({ status: '', paymentMethod: '', search: '' }); setPage(1); }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Payments Table Card */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {loading ? (
+          <LoadingState message="Loading payments..." />
+        ) : payments.length === 0 ? (
+          <EmptyState
+            title="No payments recorded"
+            description="No customer payments match your search and filter criteria."
+            actionText="Record Payment"
+            onAction={() => window.location.href = "/admin/payments/create"}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 <tr>
-                  {['Reference', 'Customer', 'Invoice', 'Amount', 'Method', 'Status', 'Date', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                      {h}
-                    </th>
-                  ))}
+                  <th className="px-5 py-3.5">Reference</th>
+                  <th className="px-5 py-3.5">Customer</th>
+                  <th className="px-5 py-3.5">Invoice</th>
+                  <th className="px-5 py-3.5 text-right">Amount</th>
+                  <th className="px-5 py-3.5">Method</th>
+                  <th className="px-5 py-3.5 text-center">Status</th>
+                  <th className="px-5 py-3.5">Date</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {payments.map((p) => (
-                  <tr key={p._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-blue-700">
+                  <tr key={p._id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-5 py-4 font-mono font-medium text-blue-600">
                       <Link to={`/admin/payments/${p._id}`} className="hover:underline">
                         {p.paymentReference}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{p.customerId}</td>
-                    <td className="px-4 py-3 font-mono text-gray-500 text-xs">{p.invoiceId}</td>
-                    <td className="px-4 py-3 font-semibold text-gray-800">{fmt(p.amount)}</td>
-                    <td className="px-4 py-3 capitalize text-gray-600">{p.paymentMethod?.replace('_', ' ')}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4 font-medium text-slate-800">{p.customerId}</td>
+                    <td className="px-5 py-4 font-mono text-slate-500 text-xs">{p.invoiceId}</td>
+                    <td className="px-5 py-4 text-right font-semibold text-slate-900">{fmt(p.amount)}</td>
+                    <td className="px-5 py-4 capitalize text-slate-600 text-xs">{p.paymentMethod?.replace('_', ' ')}</td>
+                    <td className="px-5 py-4 text-center">
                       <StatusBadge status={p.status} color={statusColors[p.status]} />
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-5 py-4 text-xs text-slate-500">
                       {p.paymentDate ? new Date(p.paymentDate).toLocaleDateString('en-IN') : '—'}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
+                    <td className="px-5 py-4 text-right">
+                      <div className="inline-flex items-center gap-1.5">
                         <Link
                           to={`/admin/payments/${p._id}`}
-                          className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          title="View Details"
                         >
-                          View
+                          <Eye className="w-4 h-4" />
                         </Link>
                         {p.status === 'pending' && (
                           <>
                             <button
                               onClick={() => handleAction('verify', p)}
-                              className="text-emerald-600 hover:text-emerald-800 text-xs font-medium"
+                              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                              title="Verify Payment"
                             >
-                              Verify
+                              <Check className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleAction('fail', p)}
-                              className="text-rose-600 hover:text-rose-800 text-xs font-medium"
+                              className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                              title="Mark Failed"
                             >
-                              Fail
+                              <X className="w-4 h-4" />
                             </button>
                           </>
                         )}
@@ -234,27 +256,29 @@ export default function PaymentList() {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
-            >
-              Next
-            </button>
+          <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 bg-slate-50/50 text-xs text-slate-500">
+            <div>Page {page} of {totalPages}</div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

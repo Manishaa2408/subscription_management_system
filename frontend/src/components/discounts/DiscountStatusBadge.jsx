@@ -1,83 +1,23 @@
 import React from "react";
 
 export const DiscountStatusBadge = ({ status }) => {
-  const getBadgeConfig = (st) => {
-    switch (st?.toLowerCase()) {
-      case "active":
-        return {
-          label: "Active",
-          style: {
-            backgroundColor: "#dcfce7",
-            color: "#15803d",
-            borderColor: "#86efac"
-          }
-        };
-      case "inactive":
-        return {
-          label: "Inactive",
-          style: {
-            backgroundColor: "#fef3c7",
-            color: "#b45309",
-            borderColor: "#fde68a"
-          }
-        };
-      case "expired":
-        return {
-          label: "Expired",
-          style: {
-            backgroundColor: "#fee2e2",
-            color: "#b91c1c",
-            borderColor: "#fca5a5"
-          }
-        };
-      case "archived":
-        return {
-          label: "Archived",
-          style: {
-            backgroundColor: "#f1f5f9",
-            color: "#475569",
-            borderColor: "#cbd5e1"
-          }
-        };
-      default:
-        return {
-          label: st || "Unknown",
-          style: {
-            backgroundColor: "#f3f4f6",
-            color: "#4b5563",
-            borderColor: "#e5e7eb"
-          }
-        };
-    }
+  const configs = {
+    active: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-500", label: "Active" },
+    inactive: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", dot: "bg-amber-500", label: "Inactive" },
+    expired: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", dot: "bg-rose-500", label: "Expired" },
+    archived: { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", label: "Archived" }
   };
 
-  const { label, style } = getBadgeConfig(status);
+  const current = configs[status?.toLowerCase()] || {
+    bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", label: status || "Unknown"
+  };
 
   return (
     <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        padding: "3px 10px",
-        borderRadius: "9999px",
-        fontSize: "0.75rem",
-        fontWeight: 600,
-        textTransform: "uppercase",
-        letterSpacing: "0.03em",
-        border: "1px solid",
-        ...style
-      }}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border ${current.bg} ${current.text} ${current.border}`}
     >
-      <span
-        style={{
-          width: "6px",
-          height: "6px",
-          borderRadius: "50%",
-          backgroundColor: style.color
-        }}
-      />
-      {label}
+      <span className={`w-1.5 h-1.5 rounded-full ${current.dot} ${status === "active" ? "animate-pulse" : ""}`} />
+      {current.label}
     </span>
   );
 };

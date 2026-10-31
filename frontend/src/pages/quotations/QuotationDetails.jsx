@@ -5,9 +5,10 @@ import { useAuth } from "../../context/AuthContext";
 import QuotationStatusBadge from "../../components/quotations/QuotationStatusBadge";
 import QuotationActivityTimeline from "../../components/quotations/QuotationActivityTimeline";
 import QuotationPreviewModal from "../../components/quotations/QuotationPreviewModal";
+import { LoadingState } from "../../components/common/LoadingState";
 import {
   ArrowLeft, Edit2, Send, FileText, ArrowUpRight, XCircle, Printer,
-  CheckCircle, Clock, AlertTriangle, ShieldCheck
+  CheckCircle, Clock, AlertTriangle, ShieldCheck, User, Calendar, IndianRupee
 } from "lucide-react";
 
 export const QuotationDetails = () => {
@@ -86,7 +87,7 @@ export const QuotationDetails = () => {
   };
 
   const handleConvert = async () => {
-    if (!window.confirm(`Convert accepted quotation ${quotation.quotationNumber} to a Subscription (M7)?`)) return;
+    if (!window.confirm(`Convert accepted quotation ${quotation.quotationNumber} into an active subscription?`)) return;
     try {
       const res = await quotationService.convertQuotation(id);
       alert(`Success! Subscription created: ${res.data.subscriptionId}`);
@@ -105,16 +106,19 @@ export const QuotationDetails = () => {
   };
 
   if (loading) {
-    return <div className="card" style={{ textAlign: "center", padding: "48px" }}>Loading quotation details...</div>;
+    return <LoadingState message="Loading quotation details..." />;
   }
 
   if (error || !quotation) {
     return (
-      <div className="card" style={{ textAlign: "center", padding: "48px" }}>
-        <h2 style={{ color: "#ef4444", marginBottom: "8px" }}>Error Loading Quotation</h2>
-        <p style={{ color: "#64748b", marginBottom: "16px" }}>{error || "Quotation not found"}</p>
-        <Link to="/quotations" className="btn btn-outline">
-          <ArrowLeft size={16} /> Back to Quotations
+      <div className="bg-white rounded-xl border border-slate-200 p-8 text-center max-w-lg mx-auto">
+        <h2 className="text-lg font-bold text-rose-600 mb-2">Error Loading Quotation</h2>
+        <p className="text-sm text-slate-500 mb-4">{error || "Quotation not found"}</p>
+        <Link
+          to="/quotations"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Quotations
         </Link>
       </div>
     );
@@ -125,150 +129,184 @@ export const QuotationDetails = () => {
   const isAccepted = quotation.status === "accepted";
 
   return (
-    <div>
-      {/* Top Header & Action Controls */}
-      <div className="page-header">
+    <div className="space-y-6">
+      {/* Header and Actions */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <Link to="/quotations" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", marginBottom: "8px" }}>
-            <ArrowLeft size={14} /> Back to Quotations
+          <Link
+            to="/quotations"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 mb-2 transition"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Quotations
           </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <h1 className="page-title">{quotation.quotationNumber}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold font-mono text-slate-900">{quotation.quotationNumber}</h1>
             <QuotationStatusBadge status={quotation.status} />
           </div>
-          <div style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "4px" }}>
-            Prepared for: <strong style={{ color: "#0f172a" }}>{quotation.customerSnapshot?.name}</strong>
-          </div>
+          <p className="text-sm text-slate-500 mt-1">
+            Prepared for <strong className="text-slate-800">{quotation.customerSnapshot?.name}</strong>
+          </p>
         </div>
 
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-          <button className="btn btn-outline" onClick={() => setShowPreview(true)}>
-            <FileText size={16} /> Proposal Preview
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setShowPreview(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl transition shadow-xs"
+          >
+            <FileText className="w-4 h-4 text-slate-400" /> Proposal Preview
           </button>
 
-          <a href={`/api/quotations/${quotation._id}/pdf`} target="_blank" rel="noopener noreferrer" className="btn btn-outline">
-            <Printer size={16} /> PDF Print View
+          <a
+            href={`/api/quotations/${quotation._id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl transition shadow-xs"
+          >
+            <Printer className="w-4 h-4 text-slate-400" /> PDF View
           </a>
 
-          {/* Draft Actions */}
           {!isCustomer && isDraft && (
             <>
-              <Link to={`/quotations/${quotation._id}/edit`} className="btn btn-outline">
-                <Edit2 size={16} /> Edit Draft
+              <Link
+                to={`/quotations/${quotation._id}/edit`}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl transition shadow-xs"
+              >
+                <Edit2 className="w-4 h-4 text-slate-400" /> Edit Draft
               </Link>
-              <button className="btn btn-primary" onClick={handleSend}>
-                <Send size={16} /> Finalize & Send
+              <button
+                onClick={handleSend}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition shadow-xs"
+              >
+                <Send className="w-4 h-4" /> Finalize & Send
               </button>
             </>
           )}
 
-          {/* Customer Accept / Reject Actions */}
           {isCustomer && isSent && (
             <>
-              <button className="btn btn-outline" style={{ color: "#dc2626", borderColor: "#fca5a5" }} onClick={handleReject}>
-                <XCircle size={16} /> Decline
+              <button
+                onClick={handleReject}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 text-xs font-semibold rounded-xl transition"
+              >
+                <XCircle className="w-4 h-4" /> Decline
               </button>
-              <button className="btn btn-primary" style={{ background: "#16a34a" }} onClick={handleAccept}>
-                <CheckCircle size={16} /> Accept Quotation
+              <button
+                onClick={handleAccept}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition shadow-xs"
+              >
+                <CheckCircle className="w-4 h-4" /> Accept Quotation
               </button>
             </>
           )}
 
-          {/* Accepted Conversion to Subscription */}
           {!isCustomer && isAccepted && (
             <button
-              className="btn btn-primary"
-              style={{ background: "#7c3aed" }}
               onClick={handleConvert}
               disabled={quotation.subscriptionConversion?.status === "converted"}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl transition shadow-xs ${
+                quotation.subscriptionConversion?.status === "converted"
+                  ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                  : "bg-purple-600 hover:bg-purple-700 text-white"
+              }`}
             >
-              <ArrowUpRight size={16} /> {quotation.subscriptionConversion?.status === "converted" ? "Converted to Subscription" : "Convert to Subscription"}
+              <ArrowUpRight className="w-4 h-4" />
+              {quotation.subscriptionConversion?.status === "converted" ? "Converted to Subscription" : "Convert to Subscription"}
             </button>
           )}
 
-          {/* Cancel Quotation */}
           {!isCustomer && ["draft", "sent"].includes(quotation.status) && (
-            <button className="btn btn-danger" onClick={handleCancel}>
-              <XCircle size={16} /> Cancel
+            <button
+              onClick={handleCancel}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-rose-600 hover:bg-rose-50 text-xs font-semibold rounded-xl transition"
+            >
+              <XCircle className="w-4 h-4" /> Cancel
             </button>
           )}
         </div>
       </div>
 
-      {/* Subscription Conversion Banner (if converted) */}
+      {/* Subscription Conversion Banner */}
       {quotation.subscriptionConversion?.status === "converted" && (
-        <div className="alert alert-success" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <ShieldCheck size={20} />
-          <div>
-            <strong>Subscription Activated:</strong> Subscription ID <code>{quotation.subscriptionConversion.subscriptionId}</code> was created from this quotation on {new Date(quotation.subscriptionConversion.convertedAt).toLocaleString()}.
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl flex items-center gap-3">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+          <div className="text-sm">
+            <span className="font-semibold">Subscription Activated:</span> Subscription ID{" "}
+            <code className="font-mono bg-emerald-100/70 px-1.5 py-0.5 rounded text-xs font-bold text-emerald-900">
+              {quotation.subscriptionConversion.subscriptionId}
+            </code>{" "}
+            was created from this proposal on {new Date(quotation.subscriptionConversion.convertedAt).toLocaleString()}.
           </div>
         </div>
       )}
 
       {/* Top 3 Info Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginBottom: "20px" }}>
-        <div className="card" style={{ margin: 0 }}>
-          <div style={{ fontSize: "0.8rem", color: "#64748b", textTransform: "uppercase" }}>Customer Details</div>
-          <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", marginTop: "4px" }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <User className="w-3.5 h-3.5" /> Customer Details
+          </div>
+          <div className="text-base font-bold text-slate-900 mt-2">
             {quotation.customerSnapshot?.name}
           </div>
-          <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "2px" }}>
-            {quotation.customerSnapshot?.email} | {quotation.customerSnapshot?.phone || "N/A"}
+          <div className="text-xs text-slate-500 mt-1">
+            {quotation.customerSnapshot?.email} {quotation.customerSnapshot?.phone ? `• ${quotation.customerSnapshot.phone}` : ""}
           </div>
         </div>
 
-        <div className="card" style={{ margin: 0 }}>
-          <div style={{ fontSize: "0.8rem", color: "#64748b", textTransform: "uppercase" }}>Quotation Validity</div>
-          <div style={{ fontSize: "1.1rem", fontWeight: 700, color: quotation.status === "expired" ? "#dc2626" : "#0f172a", marginTop: "4px" }}>
+        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <Calendar className="w-3.5 h-3.5" /> Proposal Timeline
+          </div>
+          <div className={`text-base font-bold mt-2 ${quotation.status === "expired" ? "text-rose-600" : "text-slate-900"}`}>
             Valid Until: {new Date(quotation.validUntil).toLocaleDateString()}
           </div>
-          <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "2px" }}>
+          <div className="text-xs text-slate-500 mt-1">
             Created: {new Date(quotation.quotationDate).toLocaleDateString()}
           </div>
         </div>
 
-        <div className="card" style={{ margin: 0, background: "#f8fafc" }}>
-          <div style={{ fontSize: "0.8rem", color: "#1e40af", textTransform: "uppercase", fontWeight: 700 }}>Proposal Grand Total</div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1e40af", marginTop: "4px" }}>
+        <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-200/60 shadow-xs">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-700">
+            <IndianRupee className="w-3.5 h-3.5" /> Grand Total
+          </div>
+          <div className="text-2xl font-bold text-blue-700 mt-1">
             {formatCurrency(quotation.grandTotal)}
           </div>
-          <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "2px" }}>
-            Subtotal: {formatCurrency(quotation.subtotal)} | Taxes: {formatCurrency(quotation.totalTax)}
+          <div className="text-xs text-slate-500 mt-1">
+            Subtotal: {formatCurrency(quotation.subtotal)} • Tax: {formatCurrency(quotation.totalTax)}
           </div>
         </div>
       </div>
 
       {/* Line Items Table */}
-      <div className="card">
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1e293b", marginBottom: "16px" }}>
-          Configured Software & Services
-        </h2>
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden p-6 space-y-6">
+        <h2 className="text-base font-bold text-slate-900">Configured Software & Services</h2>
 
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
               <tr>
-                <th>Item & Description</th>
-                <th style={{ width: "120px", textAlign: "center" }}>Billing</th>
-                <th style={{ width: "70px", textAlign: "right" }}>Qty</th>
-                <th style={{ width: "110px", textAlign: "right" }}>Unit Price</th>
-                <th style={{ width: "80px", textAlign: "right" }}>Tax</th>
-                <th style={{ width: "130px", textAlign: "right" }}>Line Total</th>
+                <th className="px-4 py-3">Item & Description</th>
+                <th className="px-4 py-3 text-center">Billing</th>
+                <th className="px-4 py-3 text-right">Qty</th>
+                <th className="px-4 py-3 text-right">Unit Price</th>
+                <th className="px-4 py-3 text-right">Tax</th>
+                <th className="px-4 py-3 text-right">Line Total</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {quotation.lineItems?.map((item, idx) => (
-                <tr key={idx}>
-                  <td>
-                    <div style={{ fontWeight: 600 }}>{item.description}</div>
+                <tr key={idx} className="hover:bg-slate-50/50">
+                  <td className="px-4 py-3.5 font-medium text-slate-900">
+                    {item.description}
                   </td>
-                  <td style={{ textAlign: "center", textTransform: "capitalize", color: "#64748b" }}>
+                  <td className="px-4 py-3.5 text-center capitalize text-slate-500 text-xs">
                     {item.billingFrequency?.replace("_", " ")}
                   </td>
-                  <td style={{ textAlign: "right" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "right" }}>{formatCurrency(item.unitPrice)}</td>
-                  <td style={{ textAlign: "right" }}>{item.taxRate}%</td>
-                  <td style={{ textAlign: "right", fontWeight: 600, color: "#1e40af" }}>
+                  <td className="px-4 py-3.5 text-right text-slate-700">{item.quantity}</td>
+                  <td className="px-4 py-3.5 text-right text-slate-700">{formatCurrency(item.unitPrice)}</td>
+                  <td className="px-4 py-3.5 text-right text-slate-500 text-xs">{item.taxRate}%</td>
+                  <td className="px-4 py-3.5 text-right font-semibold text-slate-900">
                     {formatCurrency(item.lineTotal)}
                   </td>
                 </tr>
@@ -278,43 +316,33 @@ export const QuotationDetails = () => {
         </div>
 
         {/* Totals Summary */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
-          <div style={{ width: "320px", background: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", fontSize: "0.9rem" }}>
+        <div className="flex justify-end pt-4 border-t border-slate-100">
+          <div className="w-80 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs">
+            <div className="flex justify-between text-slate-600">
               <span>Subtotal:</span>
-              <span style={{ fontWeight: 600 }}>{formatCurrency(quotation.subtotal)}</span>
+              <span className="font-semibold text-slate-800">{formatCurrency(quotation.subtotal)}</span>
             </div>
 
             {quotation.discountAmount > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", fontSize: "0.9rem", color: "#16a34a" }}>
+              <div className="flex justify-between text-emerald-600 font-medium">
                 <span>Discount ({quotation.discountDetails?.code || "Coupon"}):</span>
-                <span style={{ fontWeight: 600 }}>-{formatCurrency(quotation.discountAmount)}</span>
+                <span>-{formatCurrency(quotation.discountAmount)}</span>
               </div>
             )}
 
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", fontSize: "0.9rem" }}>
+            <div className="flex justify-between text-slate-600">
               <span>Taxable Amount:</span>
-              <span style={{ fontWeight: 600 }}>{formatCurrency(quotation.taxableAmount)}</span>
+              <span className="font-semibold text-slate-800">{formatCurrency(quotation.taxableAmount)}</span>
             </div>
 
             {quotation.taxBreakdown?.map((t, idx) => (
-              <div key={idx} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0", fontSize: "0.8rem", color: "#64748b" }}>
+              <div key={idx} className="flex justify-between text-slate-500">
                 <span>{t.name} ({t.rate}%):</span>
                 <span>{formatCurrency(t.amount)}</span>
               </div>
             ))}
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "10px 0 2px",
-                borderTop: "2px solid #0f172a",
-                fontSize: "1.2rem",
-                fontWeight: 800,
-                color: "#1e40af"
-              }}
-            >
+            <div className="flex justify-between text-base font-bold text-blue-700 pt-2 border-t border-slate-200">
               <span>Grand Total:</span>
               <span>{formatCurrency(quotation.grandTotal)}</span>
             </div>
@@ -322,33 +350,32 @@ export const QuotationDetails = () => {
         </div>
       </div>
 
-      {/* Customer / Internal Notes */}
+      {/* Customer & Internal Notes */}
       {(quotation.customerNotes || quotation.internalNotes) && (
-        <div className="card">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {quotation.customerNotes && (
-            <div style={{ marginBottom: quotation.internalNotes ? "16px" : 0 }}>
-              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569", marginBottom: "4px" }}>
+            <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                 Customer Notes
-              </div>
-              <p style={{ color: "#1e293b", fontSize: "0.9rem" }}>{quotation.customerNotes}</p>
+              </span>
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{quotation.customerNotes}</p>
             </div>
           )}
+
           {!isCustomer && quotation.internalNotes && (
-            <div>
-              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#b45309", marginBottom: "4px" }}>
-                Internal Sales Notes (Invisible to Customer)
-              </div>
-              <p style={{ color: "#64748b", fontSize: "0.85rem", fontStyle: "italic" }}>{quotation.internalNotes}</p>
+            <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
+              <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider block mb-2">
+                Internal Sales Notes
+              </span>
+              <p className="text-sm text-slate-600 italic whitespace-pre-wrap">{quotation.internalNotes}</p>
             </div>
           )}
         </div>
       )}
 
-      {/* Activity Timeline Card */}
-      <div className="card">
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1e293b", marginBottom: "16px" }}>
-          Audit Trail & Activity Log
-        </h2>
+      {/* Audit Trail & Activity Log */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+        <h2 className="text-base font-bold text-slate-900 mb-4">Audit Trail & Activity Log</h2>
         <QuotationActivityTimeline activities={activity} />
       </div>
 

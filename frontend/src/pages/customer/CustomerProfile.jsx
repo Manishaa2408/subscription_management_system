@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import customerService from '../../services/customerService';
 import PortalLayout from '../../components/portal/PortalLayout';
+import { LoadingState } from '../../components/common/LoadingState';
 import { User, Phone, Mail, Globe, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const CustomerProfile = () => {
@@ -66,10 +67,7 @@ const CustomerProfile = () => {
   if (loading) {
     return (
       <PortalLayout title="My Profile" subtitle="Manage your personal and contact details">
-        <div style={{ textAlign: 'center', padding: '4rem' }}>
-          <div className="spinner spinner-primary" style={{ margin: '0 auto 1rem' }} />
-          <p style={{ color: 'var(--slate-500)' }}>Loading profile...</p>
-        </div>
+        <LoadingState message="Loading profile..." />
       </PortalLayout>
     );
   }
@@ -80,107 +78,96 @@ const CustomerProfile = () => {
       subtitle="Manage your personal contact details and business references"
     >
       {alert && (
-        <div className={`alert alert-${alert.type}`} style={{ marginBottom: '1.5rem' }}>
-          {alert.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+        <div
+          className={`p-4 rounded-xl text-sm font-medium flex items-center gap-2 mb-6 ${
+            alert.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border border-rose-200'
+          }`}
+        >
+          {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
           <span>{alert.message}</span>
         </div>
       )}
 
-      <div style={{ maxWidth: '750px' }}>
-        {/* Account Snapshot */}
-        <div className="dashboard-card" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <div
-              style={{
-                width: '52px',
-                height: '52px',
-                borderRadius: '50%',
-                background: 'var(--primary-light)',
-                color: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                fontWeight: 700
-              }}
-            >
+      <div className="max-w-2xl space-y-6">
+        {/* Account Snapshot Card */}
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">
               {(profile?.displayName || 'C').charAt(0).toUpperCase()}
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem' }}>{profile?.displayName}</h3>
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}>
-                <span className="nav-badge badge-customer">Customer</span>
-                <span className="badge-active">{profile?.status || 'Active'}</span>
+              <h3 className="text-lg font-bold text-slate-900">{profile?.displayName}</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  Customer
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {profile?.status || 'Active'}
+                </span>
               </div>
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '0.75rem',
-              paddingTop: '1rem',
-              borderTop: '1px solid var(--slate-200)',
-              fontSize: '0.875rem'
-            }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100 text-xs text-slate-600">
             <div>
-              <span style={{ color: 'var(--slate-500)' }}>Customer Code:</span>{' '}
-              <code>{profile?.customerCode || 'CUST-PORTAL'}</code>
+              <span className="text-slate-400 block mb-0.5">Customer Code</span>
+              <span className="font-mono font-medium text-slate-800">{profile?.customerCode || 'CUST-PORTAL'}</span>
             </div>
             <div>
-              <span style={{ color: 'var(--slate-500)' }}>Classification:</span>{' '}
-              <strong style={{ textTransform: 'capitalize' }}>{profile?.customerType || 'Individual'}</strong>
+              <span className="text-slate-400 block mb-0.5">Classification</span>
+              <span className="font-medium text-slate-800 capitalize">{profile?.customerType || 'Individual'}</span>
             </div>
             <div>
-              <span style={{ color: 'var(--slate-500)' }}>Registered Email:</span>{' '}
-              <strong>{profile?.email}</strong>
+              <span className="text-slate-400 block mb-0.5">Registered Email</span>
+              <span className="font-medium text-slate-800">{profile?.email}</span>
             </div>
             {profile?.gstin && (
               <div>
-                <span style={{ color: 'var(--slate-500)' }}>GSTIN:</span> <code>{profile.gstin}</code>
+                <span className="text-slate-400 block mb-0.5">GSTIN</span>
+                <span className="font-mono font-medium text-slate-800">{profile.gstin}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Edit Permitted Fields */}
-        <form onSubmit={handleSubmit} className="dashboard-card">
-          <h3 style={{ fontSize: '1.05rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--slate-200)', paddingBottom: '0.5rem' }}>
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+          <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
             Update Contact Details
           </h3>
 
-          <div className="form-group">
-            <label className="form-label">Display Name *</label>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Display Name *</label>
             <input
               type="text"
               name="displayName"
-              className="form-input"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition"
               value={formData.displayName}
               onChange={handleChange}
               required
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">Primary Phone</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Primary Phone</label>
               <input
                 type="tel"
                 name="phone"
-                className="form-input"
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition"
                 placeholder="+91 9876543210"
                 value={formData.phone}
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group">
-              <label className="form-label">Alternate Phone</label>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Alternate Phone</label>
               <input
                 type="tel"
                 name="alternatePhone"
-                className="form-input"
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition"
                 placeholder="+91 9876543211"
                 value={formData.alternatePhone}
                 onChange={handleChange}
@@ -188,23 +175,22 @@ const CustomerProfile = () => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Website / Portfolio</label>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Website / Business URL</label>
             <input
               type="url"
               name="website"
-              className="form-input"
-              placeholder="https://mywebsite.com"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+              placeholder="https://example.com"
               value={formData.website}
               onChange={handleChange}
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="btn btn-primary"
-              style={{ width: 'auto' }}
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm disabled:opacity-50"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Saving Changes...' : 'Save Profile'}
