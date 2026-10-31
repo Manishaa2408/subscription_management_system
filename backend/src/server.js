@@ -7,14 +7,19 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
+    const { startBillingScheduler } = require('./modules/billing/scheduler/billingScheduler');
+    startBillingScheduler();
+
     const server = app.listen(PORT, () => {
       console.log(`=======================================================`);
       console.log(`Brightloop Subscription Management System - Backend`);
-      console.log(`Module: M10 - Invoice & Tax Management`);
+      console.log(`Modules: M9 (Billing), M10 (Invoices), M11 (Payments)`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`Server running on: http://localhost:${PORT}`);
+      console.log(`Billing API:       http://localhost:${PORT}/api/billing`);
+      console.log(`Billing Runs:      http://localhost:${PORT}/api/billing/runs`);
       console.log(`Invoices API:      http://localhost:${PORT}/api/invoices`);
-      console.log(`Tax Config API:    http://localhost:${PORT}/api/tax-configurations`);
+      console.log(`Payments API:      http://localhost:${PORT}/api/payments`);
       console.log(`Health Check:      http://localhost:${PORT}/api/health`);
       console.log(`=======================================================`);
     });

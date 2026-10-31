@@ -9,6 +9,8 @@ const paymentRoutes = require('./modules/payments/routes/paymentRoutes');
 const reconciliationRoutes = require('./modules/payments/routes/reconciliationRoutes');
 const receiptRoutes = require('./modules/payments/routes/receiptRoutes');
 const refundRoutes = require('./modules/payments/routes/refundRoutes');
+const billingRoutes = require('./modules/billing/routes/billingRoutes');
+const billingRunRoutes = require('./modules/billing/routes/billingRunRoutes');
 
 const app = express();
 
@@ -29,7 +31,11 @@ if (process.env.NODE_ENV !== 'test') {
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    modules: ['M10 - Invoice & Tax Management', 'M11 - Payment & Reconciliation Management'],
+    modules: [
+      'M9 - Recurring Billing & Invoice Generation Engine',
+      'M10 - Invoice & Tax Management',
+      'M11 - Payment & Reconciliation Management'
+    ],
     system: 'Brightloop Subscription Management System',
     timestamp: new Date().toISOString()
   });
@@ -42,6 +48,8 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/reconciliation', reconciliationRoutes);
 app.use('/api/receipts', receiptRoutes);
 app.use('/api/refunds', refundRoutes);
+app.use('/api/billing/runs', billingRunRoutes);
+app.use('/api/billing', billingRoutes);
 
 // 404 Handler
 app.use('*', (req, res) => {
