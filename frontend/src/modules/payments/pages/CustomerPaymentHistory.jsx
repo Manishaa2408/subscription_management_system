@@ -39,7 +39,7 @@ export default function CustomerPaymentHistory() {
     .reduce((sum, p) => sum + (p.amount ?? 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">My Payments</h1>

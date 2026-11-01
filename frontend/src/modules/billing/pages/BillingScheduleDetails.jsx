@@ -61,7 +61,7 @@ export default function BillingScheduleDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-400">
+      <div className="py-20 flex items-center justify-center text-slate-400">
         Loading schedule…
       </div>
     );
@@ -69,7 +69,7 @@ export default function BillingScheduleDetails() {
 
   if (!schedule) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
+      <div className="py-20 flex flex-col items-center justify-center gap-3">
         <p className="text-slate-600 font-semibold">Schedule not found</p>
         <button onClick={() => navigate('/admin/billing/schedules')} className="text-sm text-blue-600 hover:underline">
           &larr; Back to Schedules
@@ -79,7 +79,7 @@ export default function BillingScheduleDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="w-full">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">

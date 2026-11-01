@@ -121,7 +121,7 @@ export default function RecordPayment() {
       : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full">
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-6">
           <button

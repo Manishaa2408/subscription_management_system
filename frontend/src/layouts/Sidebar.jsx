@@ -124,14 +124,14 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, setIsCollapsed }) => {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 ease-in-out lg:static ${
+        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col bg-white border-r border-slate-200/90 shadow-[4px_0_24px_-4px_rgba(15,23,42,0.08),1px_0_3px_0_rgba(15,23,42,0.04)] transition-all duration-300 ease-in-out lg:static lg:z-20 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } ${isCollapsed ? 'lg:w-20' : 'lg:w-64'} w-64 shadow-xs`}
+        } ${isCollapsed ? 'lg:w-20' : 'lg:w-64'} w-64`}
       >
         {/* Brand Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100 flex-shrink-0">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200/80 flex-shrink-0 bg-white">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md shadow-blue-500/20">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md shadow-blue-500/25">
               <Layers className="w-5 h-5" />
             </div>
             {!isCollapsed && (
@@ -152,7 +152,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, setIsCollapsed }) => {
         </div>
 
         {/* Navigation List */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin">
           {navigation.map((section, idx) => (
             <div key={idx} className="space-y-1">
               {!isCollapsed && (
@@ -174,14 +174,14 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, setIsCollapsed }) => {
                       to={item.path}
                       onClick={() => onClose && onClose()}
                       title={isCollapsed ? item.name : undefined}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`flex items-center gap-3 py-2 rounded-lg text-sm font-medium transition-all ${
                         active
-                          ? 'bg-blue-50 text-blue-700 font-semibold'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      } ${isCollapsed ? 'justify-center px-0' : ''}`}
+                          ? 'bg-blue-50/90 text-blue-700 font-semibold shadow-2xs border-l-[3px] border-blue-600 pl-2.5 pr-3'
+                          : 'px-3 text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                      } ${isCollapsed ? 'justify-center !px-0 !border-l-0' : ''}`}
                     >
                       <Icon
-                        className={`w-4 h-4 flex-shrink-0 ${
+                        className={`w-4 h-4 flex-shrink-0 transition-colors ${
                           active ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
                         }`}
                       />
@@ -195,7 +195,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, setIsCollapsed }) => {
         </div>
 
         {/* Collapse toggle (Desktop only) */}
-        <div className="hidden lg:flex items-center justify-between p-3 border-t border-slate-100 flex-shrink-0 bg-slate-50/50">
+        <div className="hidden lg:flex items-center justify-between p-3 border-t border-slate-200/80 flex-shrink-0 bg-slate-50/70">
           {!isCollapsed && (
             <div className="flex items-center gap-2 pl-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

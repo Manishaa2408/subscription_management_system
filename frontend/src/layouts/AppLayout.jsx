@@ -7,7 +7,7 @@ export const AppLayout = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-row font-sans text-slate-900 antialiased">
+    <div className="min-h-screen bg-slate-100/70 flex flex-row font-sans text-slate-900 antialiased selection:bg-blue-500 selection:text-white">
       {/* Sidebar Navigation */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -17,10 +17,10 @@ export const AppLayout = ({ children }) => {
       />
 
       {/* Main Content Area with Header */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100/70">
         <Header onOpenSidebar={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-slate-100/70">
           {children}
         </main>
       </div>

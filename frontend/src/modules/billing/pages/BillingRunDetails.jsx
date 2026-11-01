@@ -53,7 +53,7 @@ export default function BillingRunDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-400">
+      <div className="py-20 flex items-center justify-center text-slate-400">
         Loading run details…
       </div>
     );
@@ -61,7 +61,7 @@ export default function BillingRunDetails() {
 
   if (!data?.run) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
+      <div className="py-20 flex flex-col items-center justify-center gap-3">
         <p className="text-slate-600 font-semibold">Billing run not found</p>
         <button onClick={() => navigate('/admin/billing/runs')} className="text-sm text-blue-600 hover:underline">
           &larr; Back to Billing Runs
@@ -73,7 +73,7 @@ export default function BillingRunDetails() {
   const { run, executions = [], logs = [] } = data;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="w-full">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Navigation */}
         <div className="mb-6">

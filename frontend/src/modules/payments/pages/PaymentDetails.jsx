@@ -72,7 +72,7 @@ export default function PaymentDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="py-20 flex items-center justify-center">
         <p className="text-gray-400">Loading payment…</p>
       </div>
     );
@@ -80,7 +80,7 @@ export default function PaymentDetails() {
 
   if (!payment) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+      <div className="py-20 flex flex-col items-center justify-center gap-4">
         <p className="text-gray-500">Payment not found</p>
         <button onClick={() => navigate('/admin/payments')} className="text-blue-600 text-sm hover:underline">
           ← Back to Payments
@@ -90,7 +90,7 @@ export default function PaymentDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
